@@ -1,0 +1,44 @@
+cv.vectors <-
+function(X, y, method, family, lambda, phi, L.index, T.index, 
+dev, weights,  control,...)
+{
+n <- dim(X)[1]
+
+if(control$tuning.criterion == "deviance"){crit <- dev}
+if(control$tuning.criterion == "SSE"){crit <- function(y,mudach,weights){sum((y-mudach)^2*weights)}}
+
+losses <- matrix(ncol=length(lambda), nrow=length(phi))
+rownames(losses) <- as.character(phi)
+colnames(losses) <- as.character(lambda)
+
+for (r in 1: length(phi)) {
+     weight <- weight.function(phi[r], control)
+
+for (i in 1:length(lambda)) {
+    loss <- 0
+    for (j in 1:control$K){
+        training.X <- X[L.index[[j]],]  
+        training.y <- y[L.index[[j]]]
+        training.weights <- weights[L.index[[j]]]
+        test.X <- X[T.index[[j]],]
+        test.y <- y[T.index[[j]]]
+        test.weights <- weights[T.index[[j]]]
+        
+        model <- optimierung(X=training.X, y=training.y, method, family, lambda=lambda[i], weight, training.weights, control)
+        test.mudach <- family$linkinv(test.X %*% model$beta.i)
+        loss <- loss + crit(y=test.y, mudach=test.mudach, weights=test.weights)
+    }
+    losses[r,i] <- loss 
+}
+
+}
+
+opt <- max(lambda[(which(losses==min(losses))-1)%/%dim(losses)[1]+1])
+if (length(opt)!=1) {opt <- opt[1]}
+phi <- phi[(which(losses==min(losses))-1)%%(dim(losses)[1])+1]
+if(length(phi)!=1) {phi <-phi[which.min((phi-0.5)^2)]}
+if(length(phi)!=1) {phi <- phi[1]}
+
+return(list(lambda=opt, phi=phi, score=losses, lambdas=lambda))
+}
+
