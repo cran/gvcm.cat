@@ -1,4 +1,4 @@
-a79e6e4fa0cc24086c8ebf5fabf1fc93 *DESCRIPTION
+322be0014fa927ad19ee688c96c3d614 *DESCRIPTION
 f1c03a3788be667ac062a5485f76c591 *NAMESPACE
 151161161dd96724d2603a96133344de *R/a.coefs.R
 94e7feb0dae5cf758dbca552e26777b9 *R/abc.R
@@ -28,7 +28,7 @@ ae30dfaed512d3662e2b5b1072ae27fa *R/reductionX.R
 bd55c06974059dfada755e2036ab238c *R/summary.gvcm.cat.R
 6fb2e052e906d8e0abf72fc2f7910a4e *R/v.R
 9c27e858d93db0db6ae8245b88c0cbe6 *R/weight.function.R
-3bd4a6cc31aa60afa19260b1ba9134ac *inst/CITATION
+fc9fd494b5691af87b7adedc79a0a141 *inst/CITATION
 7afa7a7e6cbe2d549b357647189320d1 *man/cat_control.Rd
 748a726dc63a0c312bf9339b4c5b1f9d *man/gvcm.cat-internal.Rd
 a6708bb0ada72075a1b7dbdfebd8aa21 *man/gvcm.cat.Rd
