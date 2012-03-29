@@ -8,7 +8,7 @@ function(formula, data)
     m <- model.frame(formula=terms(formula, specials=special, data=data), data)
     tf <- attr(m, "terms")
     attr(tf, "intercept") <- 1
-    options(contrasts = c("contr.effect", "contr.effect"))
+#    options(contrasts = c("contr.effect", "contr.effect"))
     X <- model.matrix(tf, m)
     if (int==0) X <- X[,-1]
 
@@ -74,6 +74,7 @@ function(formula, data)
     erms <- attr(u, "terms")
     if (attr(erms, "dataClasses")[[1]]=="factor") {index3 <- c(index3, -1)}
     if (attr(erms, "dataClasses")[[1]]=="ordered"){index3 <- c(index3, +1)}
+    if (attr(erms, "dataClasses")[[1]]=="numeric"){index3 <- c(index3, +1)}
     } else {index3 <- c(index3, 0)}
   }
   }

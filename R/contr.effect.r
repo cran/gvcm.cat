@@ -1,4 +1,4 @@
-contr.effect <- function (n, contrasts = TRUE, sparse = FALSE)
+contr.effect <- function (n, contrasts = TRUE, sparse = FALSE) # => 1. category as reference, contr.sum => last category as reference
 {
     if (length(n) <= 1L) {
         if (is.numeric(n) && length(n) == 1L && n > 1L)
@@ -6,7 +6,6 @@ contr.effect <- function (n, contrasts = TRUE, sparse = FALSE)
         else stop("not enough degrees of freedom to define contrasts")
     }
     else levels <- n
-    #levels <- as.character(levels)
     cont <- diag(length(levels))
     if (contrasts) {
         cont <- cont[, -1, drop = FALSE]

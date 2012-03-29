@@ -40,8 +40,10 @@ if (method == "lqa") {
     # penalty lqa
       acoefs <- A
       lqa <- function(betak){
-        diag( as.vector( first.derivative(betak, lambda, weight, acoefs, control)/
-        ( sqrt((t(acoefs)%*%betak)^2 + control$c) )))
+        diagonale <- as.vector( first.derivative(betak, lambda, weight, acoefs, control)/
+        ( sqrt((t(acoefs)%*%betak)^2 + control$c) ))
+        output <- diag(diagonale, nrow=length(diagonale))
+        return(output)
         }
       A <- function(betak) {acoefs %*% lqa(betak) %*% t(acoefs)}
 
@@ -80,17 +82,12 @@ if (method == "lqa") {
 
     beta.i <- matrix(beta.i, ncol=1)
     rownames(beta.i) <- rownames(control$oml)
-#    H.i <- X.star %*% inv.pimat.new %*% t(X.star)
-#    rank <- sum(diag(H.i)) # df(model)
     if (rank){
       H.i.1 <- Matrix(X.star) 
       suppressWarnings(try(H.i.2 <- H.i.1 %*% inv.pimat.new))
       if (exists("H.i.2")) rank <- sum(H.i.2 * H.i.1) else rank <- 0
       } else {rank <- 0}
     df.residual <- dim(as.matrix(X))[1]- rank # df(error)
-#    dev.m <- sum(fam$dev.resids(y, mu.i, w.wurzel.i))
-#    aic.vec <- dev.m + 2 * rank
-#    bic.vec <- dev.m + log(dim(X)[1]) * rank
     iter <- stop.at
 
     if (!converged && (stop.at == control$maxi))

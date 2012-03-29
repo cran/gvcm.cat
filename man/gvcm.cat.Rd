@@ -31,7 +31,7 @@ weights, control = cat_control(), plot=FALSE, ...)
 \arguments{
   \item{formula}{an object of class \code{\link{formula}}: a symbolic description of the model to be fitted. See details}
   \item{data}{an optional data frame, containing the variables in the model.}
-  \item{family}{a \code{family} obejct describing the error distribution and link function to be used in the model; this can be a character string naming a family function, a family function or the result of a call to a family function, see \code{\link{family}} for details; currently only \code{gaussian}, \code{binomial}, \code{poisson} are working}
+  \item{family}{a \code{family} object describing the error distribution and link function to be used in the model; this can be a character string naming a family function, a family function or the result of a call to a family function, see \code{\link{family}} for details; currently only \code{gaussian}, \code{binomial}, \code{poisson} are working}
   \item{method}{fitting method; one out of \code{"lqa"}, \code{"nlm"}, \code{"AIC"} or \code{"BIC"}; methods \code{"lqa"} and \code{"nlm"} induce penalized estimation; the default method \code{"lqa"} employs a \acronym{PIRLS}-algorithm (see Fan and Li, 2001, Ulbricht, 2010); method \code{"nlm"} employs an absolute value approximation similar to this of Ulbricht (2010), but fits the approximated optimization problem directly with function \code{\link{nlm}}. Methods \code{"AIC"} and \code{"BIC"} employ a forward selection strategy like described in Oelker et. al. (2012)}
   \item{tuning}{a list; tuning parameters for penalized estimation; \code{lambda} is the penalty parameter used; \code{phi} weights the penalty's terms, out of intervall )0,1(, the default \code{0.5} corresponds to equal weights; if \code{lambda} and/or \code{phi} are vectors, these values are cross-validated; if \code{lambda} and/or \code{phi} are \code{TRUE}, they will be cross-validated on their whole range}
   \item{weights}{an optional weight vector}
@@ -50,9 +50,9 @@ A varying intercept is denoted by \code{v(1,u)} and has stand at the formula's v
 There is no way to avoid an intercept. \cr
 Ordinal/nominal covariates \code{u} given as \code{p(u)} are penalized as described in Gertheiss and Tutz (2010). 
 For binomial and quasibinomial families the response can also be a success/failure rate or a two-column matrix with the columns giving the numbers of successes and failures. \cr
-Function \code{pest} computes \strong{p}enalized \strong{est}imates, that is implements methods  \code{"lqa"} (\acronym{PIRLS}-algorithm) and \code{"nlm"}. \cr
+Function \code{pest} computes \strong{p}enalized \strong{est}imates, that is, it implements methods  \code{"lqa"} (\acronym{PIRLS}-algorithm) and \code{"nlm"}. \cr
 Function \code{abc} implements the forward selection strategy employing \strong{A}IC/\strong{B}I\strong{C}. \cr
-Categorial effect modifiers and penalized categorial covariates are dummy coded. Other categorial covariates are effect coded. 
+Categorial effect modifiers and penalized categorial covariates are dummy coded as required by the penalty. If \code{x} in \code{v(x,u)} is binary, it is effect coded (first category refers to -1). Other covariates are coded like given by \code{\link{getOption}}.
 }
 
 \value{

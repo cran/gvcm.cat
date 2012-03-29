@@ -39,7 +39,7 @@ if (nrow(m) == 0)
     stop("No (non-missing) observations")
 Terms <- attr(m, "terms")
 attr(Terms, "intercept") <- 1
-options(contrasts = c("contr.effect", "contr.effect"))
+#options(contrasts = c("contr.effect", "contr.effect"))
 X <- model.matrix(Terms, m)
 if (int==0) X <- X[,-1]
 namen <- colnames(X)

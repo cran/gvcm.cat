@@ -2,21 +2,24 @@ a.coefs <-
 function(index1, index2, index3, assured.intercept=TRUE, p.ord.abs=TRUE) {
 
   a.coefs.nominal <- function (p = NULL, ...)   
-      { if (p < 2)
-          stop ("There must be at least two levels, if the variable varies! \n")
+      { if (p > 1)
+        {
+        #  stop ("There must be more levels for proper penalization! \n")
 
         a.coefs.mat <- diag(p)
         for (i in 1:(p-1)){
         a.coefs.mat <- cbind(a.coefs.mat, 
                 rbind(matrix(0,ncol=p-i,nrow=i-1), -1, diag(1,p-i))) 
         }
-
+        } else {
+        a.coefs.mat <- matrix(1,ncol=1,nrow=1)
+        }
         return (a.coefs.mat) 
       }
 
   a.coefs.ordinal <- function (p = NULL, ...)  
-      { if (p < 2)
-          stop ("There must be at least two levels, if the variable varies! \n")
+      { if (p > 1)
+        { # stop ("There must be more levels for proper penalization! \n")
 
         if (p > 2)
           { h1 <- cbind (-diag (p-1), 0)
@@ -25,7 +28,9 @@ function(index1, index2, index3, assured.intercept=TRUE, p.ord.abs=TRUE) {
             mat2 <- diag (p)
             a.coefs.mat <- cbind (mat2, t (mat1)) }
         else { a.coefs.mat <- cbind (diag (2), c(-1,1)) }
-
+        } else {
+        a.coefs.mat <- matrix(1,ncol=1,nrow=1)
+        }
         return (a.coefs.mat) 
       }
 

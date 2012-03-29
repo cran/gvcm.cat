@@ -76,7 +76,7 @@ int <- if (grepl("v\\(", strsplit(deparse(formula[3]), "\\+")[[1]][1]) )
 m <- model.frame(formula=terms(formula[c(1,3)], specials=special, data=data),data)
 Terms <- attr(m, "terms")
 attr(Terms, "intercept") <- 1
-options(contrasts = c("contr.effect", "contr.effect"))
+#options(contrasts = c("contr.effect", "contr.effect"))
 X <- model.matrix(Terms, m)
 if (int==0) X <- X[,-1]
 namen <- colnames(X)

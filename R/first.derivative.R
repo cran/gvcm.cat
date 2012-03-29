@@ -6,7 +6,7 @@ if (is.null (weight) && sum(control$index2 + control$index3)!=0)
 
 p <- length (weight)
 
-if (p < 2) { stop ("There must be at least two regressors! \n") }
+#if (p < 2) { stop ("There must be at least two regressors! \n") }
 
 return (rep (lambda, p) * weight * as.integer (drop(t(acoefs)%*%beta) != 0))
  
