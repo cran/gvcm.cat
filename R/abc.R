@@ -2,7 +2,7 @@ abc <-
 function(
 X,
 y,
-ind,
+indices,
 family = gaussian,
 method = c("AIC", "BIC"),
 weights,
@@ -10,54 +10,65 @@ control = cat_control(),
 plot=FALSE,
 ...
 )
+
+
 {
-# checks
+# checks  
 if (is.character(family))
     family <- get(family, mode = "function", envir = parent.frame())
 if (is.function(family))
     family <- family()
 if (is.null(family$family)) {
     print(family)
-    stop("'family' not recognized")
+    stop("'family' not recognized. \n")
 }
 
 method <- match.arg(method)
-if (!(method %in% c("AIC","BIC")))
+if (!(method %in% c("AIC", "BIC")))
      stop ("method is incorrect. \n")
 
-# model
-# plot
-
+if (missing(control))
+    control <- cat_control(...)
+if (missing(weights))
+    weights <- rep(1, times=dim(X)[1])
+if (length(weights)!=nrow(X) || !is.vector(weights) || !is.numeric(weights))
+    stop("Error in input weights. ") 
+if (!is.logical(plot) || !is.matrix(X) || !is.numeric(X) || !is.vector(y) || !is.numeric(y) || nrow(X)!=length(y) || !is.list(indices))
+     stop ("Error in input arguments. \n")
+    
 # definitions
-control$index1 <- ind[[1]]
-control$index2 <- ind[[2]]
-control$index3 <- ind[[3]]
 n <- nrow(X)
-control$number.selectable.parameters <- sum(abs(control$index1*(control$index2+control$index3)))- 
-  (as.integer(control$assured.intercept))*abs(control$index2[1])
+if (!is.list(control$K) && control$K > n)
+    ("K must be a single integer < dim(data)[1]. \n")
+n.sp <- sum(abs(indices[[1]]*(indices[[2]]+indices[[3]])))- 
+  (as.integer(control$assured.intercept))*abs(indices[[2]][1])
 
 # functions
-  control$psi <- 1
 if(family$family == "binomial"){
-  control$l <- function(y,mudach){sum((y*log(mudach) + (1-y)*log(1-mudach))*weights + lchoose(weights,y*weights))}
-  control$d <- function(y,mudach){-2*log(1-abs(y-mudach))}
-  }
-if(family$family == "gaussian"){
-  control$l <- function(y,mudach){-1/2 * sum((y - mudach)^2)/control$psi - log(sqrt(2*pi*control$psi))}
-  control$d <- function(y,mudach){(y-mudach)^2}
-  }
-if(family$family == "poisson"){
-  control$l <- function(y,mudach){sum((y*log(mudach)) - mudach - lgamma(y+1))}
-  control$d <- function(y,mudach){e <- matrix(0, nrow=length(y), ncol=1)
-   e[which(y==0),] <-(2*mudach)[which(y==0)]
-   e[which(y!=0),] <- (-2*((y*log(mudach))-mudach-(y*log(y))+y))[which(y!=0)]
+  l <- function(y,mudach,weights=weights){sum((y*log(mudach) + (1-y)*log(1-mudach))*weights + lchoose(weights,y*weights))}
+  d <- function(y,mudach,weights=weights){e <- matrix(0, nrow=length(y), ncol=1)
+   rein.binaere <- if (any(y==0) || any(y==1)) c(which(y==0),which(y==1)) else -(1:length(y))
+   e[rein.binaere,] <- (-2*log(1-abs(y-mudach))*weights)[rein.binaere]
+   e[-rein.binaere,] <- (weights*(y*log(y/mudach)+(1-y)*log((1-y)/(1-mudach))))[-rein.binaere]
    return(e)}
   }
-dev.res <- function(y,mudach,weights) {(y-mudach)/abs(y-mudach) * sqrt(control$d(y, mudach)*weights) }
-dev <- function(y,mudach,weights) {sum(control$d(y=y,mudach=mudach)*weights)}
+if(family$family == "gaussian"){
+  l <- function(y,mudach,weights=weights){-1/2 * sum(weights*(y - mudach)^2) -     log(sqrt(2*pi))}
+# l <- function(y,mudach){-1/2 * sum(weights*(y - mudach)^2)/psi - log(sqrt(2*pi*psi))}
+  d <- function(y,mudach,weights=weights){weights*(y-mudach)^2}   # 
+  }
+if(family$family == "poisson"){
+  l <- function(y,mudach,weights=weights){sum((y*log(mudach)) - mudach - lgamma(y+1))}
+  d <- function(y,mudach,weights=weights){e <- matrix(0, nrow=length(y), ncol=1)
+   e[which(y==0),] <-(2*mudach*weights)[which(y==0)]
+   e[which(y!=0),] <- (2*weights*((y*log(y/mudach))+mudach-y))[which(y!=0)]
+   return(e)}
+  }
+dev.res <- function(y,mudach,weights) {(y-mudach)/abs(y-mudach) * sqrt(d(y, mudach, weights)) }
+dev <- function(y,mudach,weights) {sum(d(y=y,mudach=mudach, weights))}
 
 # oml
-suppressWarnings(try(oml.model <- glm.fit(X, y, weights, offset = rep(0,n),
+suppressWarnings(try(oml.model <- glm.fit(X, y, weights = weights,
     family = family, intercept = FALSE), silent = TRUE))
 if(exists("oml.model")==FALSE) {
     oml.model <- list(coefficients=rep(NA, times=dim(X)[2]), rank=NA, aic=NA,
@@ -65,27 +76,33 @@ if(exists("oml.model")==FALSE) {
     warning("Ordinary maximum likelihood estimate does not exsist. \n")
     control$adapted.weights <- FALSE
     }
-control$oml <- as.matrix(round(oml.model$coefficients, control$digits))
-if(sum(as.integer(is.na(control$oml)))>0) {
+oml <- as.matrix(round(oml.model$coefficients, control$digits))
+if(sum(as.integer(is.na(oml)))>0) {
     control$adapted.weights <- FALSE
     warning("Ordinary maximum likelihood estimate contains NAs. \n")
     }
+if(length(which(abs(oml)<.0001))>0) {
+    control$adapted.weights <- FALSE
+    warning("control$adapted.weights set to FALSE as at least one ML-estimate is too close to zero. \n")
+    }
 
 # model selection
-if (control$number.selectable.parameters==0){
-    coefficients <- control$oml
-    tuning <- oml.model$aic 
+if (method == "AIC") {criterion <- function(beta){0} } else
+                     {criterion <- function(beta){(log(n)-2)*length(beta)} } 
+
+if (n.sp==0){
+    coefficients <- round(oml, control$accuracy)
+    tuning <- round(oml.model$aic + criterion(coefficients), digits=2)
     rank <- oml.model$rank
     iter <- oml.model$iter
     df.residual <- oml.model$df.residual
     converged <- oml.model$converged
-    plot <- NA
-    aic <- oml.model$aic
+    plot <- list(NA,NA)
     }
 
-if (control$number.selectable.parameters>0){
+if (n.sp>0){
     
-    suppressWarnings(try(opt <- abc.optimierung(method, X, y, family, weights, control)))
+    suppressWarnings(try(opt <- abc.optimierung(method, X, y, family, weights, control, indices, oml)))
     if(exists("opt")==FALSE) {stop("Variable selection via AIC/BIC failed. \n")}
     best <- (opt$model)
     beta.reduced <- matrix(round(best$coefficients,digits=control$accuracy),ncol=1)
@@ -106,43 +123,50 @@ if (control$number.selectable.parameters>0){
     
     }
 
+
 # prepare output
 linear.predictors <- X %*% coefficients
 mudach <- family$linkinv(linear.predictors)
+residuals <- dev.res(y = y, mudach = mudach, weights = weights)
+deviance <- round(dev(y=y,mudach=mudach,weights=weights),digits=2)
 
-X.reduced <- as.matrix(reduceX(coefficients, X, control$index1, control$index2, control$index3))
-X.reduction <- reductionX(coefficients, X, control$index1, control$index2, control$index3)
-beta.reduced <- as.matrix(reduceBeta(coefficients,control$index1, control$index2, control$index3))
+reduction <- reduce(coefficients, indices, control$assured.intercept)
+X.reduced <- as.matrix(X %*% reduction$C)
+X.reduction <- reduction$C
+beta.reduced <- as.matrix(reduction$beta)
 beta.refitted <- beta.reduced
+
+aic <- -2*l(y,mudach,weights) + 2*( rank + (family$family=="gaussian"))
 
 null <- glm(y~1, weights=weights, family=family, x=TRUE)
 beta.null <- null$coefficients
 X.null <- null$x
+null.deviance <- round(dev(y=y, mudach=family$linkinv(X.null%*%beta.null),weights=weights),2)
 
 unless.null <- function(x, if.null) if (is.null(x))
-    if.null
-    else x
+    if.null else x
 valideta <- unless.null(family$valideta, function(eta) TRUE)
 validmu <- unless.null(family$validmu, function(mu) TRUE)
 if (!(valideta(linear.predictors) && validmu(mudach))) 
-    boundary <- TRUE  
-    else boundary <- FALSE
+    boundary <- TRUE else 
+    boundary <- FALSE
+
 
 # output
 output <- list(
     coefficients = coefficients,
     coefficients.reduced = beta.reduced,
     coefficients.refitted = beta.refitted,
-    coefficients.oml = control$oml,
+    coefficients.oml = oml,
 
-    residuals = dev.res(y = y, mudach = mudach, weights=weights),
+    residuals = residuals,
     fitted.values = mudach,
     rank = rank,
     family = family,
     linear.predictors = linear.predictors,
-    deviance = round(dev(y=y,mudach=mudach,weights=weights),digits=2),
+    deviance = deviance,
     aic = aic,
-    null.deviance = round(dev(y=y, mudach=family$linkinv(X.null%*%beta.null),weights=weights),2),
+    null.deviance = null.deviance,
     iter = iter,
     weights = weights, prior.weights = NULL,
     df.residual = df.residual,
@@ -156,10 +180,8 @@ output <- list(
     na.action  = "na.omit",
     plot = plot,
     tuning = tuning,
-    index1 = control$index1,
-    index2 = control$index2,
-    index3 = control$index3,
-    number.selectable.parameters = control$number.selectable.parameters,
+    indices = indices,
+    number.selectable.parameters = n.sp,
     number.removed.parameters = dim(X)[2]-dim(X.reduced)[2],
     x.reduction = X.reduction
     )

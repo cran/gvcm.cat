@@ -1,43 +1,60 @@
 weight.function <-
 function(
-phi, 
+phi,
+indices,
+oml, 
 control,
+acoefs,
 ...
 )
 
 {
+if (missing(acoefs))
+    acoefs <- a.coefs(indices, control, oml)
+
 weight <- c()
 
-if (control$assured.intercept==TRUE){
-  if (control$index2[1]<0){
-      weight <- c(weight,rep(phi, times=(0.5*control$index1[1]*(control$index1[1]-1))))
+index1 <- indices[[1]]
+index2 <- indices[[2]]
+index3 <- indices[[3]]
+
+assured.intercept <- control$assured.intercept
+adapted.weights <- control$adapted.weights
+
+if (assured.intercept==TRUE){
+  if (index2[1]<0){
+      weight <- c(weight,rep(phi, times=(0.5*index1[1]*(index1[1]-1))))
       } 
-  if (control$index2[1]>0){weight <- c(weight,rep(phi, times=(control$index1[1]-1)))}  
+  if (index2[1]>0){weight <- c(weight,rep(phi, times=(index1[1]-1)))}  
   b <- 2 
 } else {b <- 1} 
 
-if(b<=length(control$index1)){
-  for (i in b:length(control$index1)) {
-  if (control$index2[i]<0 || control$index3[i]<0) {
-    weight <- c(weight,rep(c(1-phi,phi), times=c(control$index1[i], 0.5*control$index1[i]*
-             (control$index1[i]-1)))) 
+# phi <- .5 # Sarah!!
+if(b<=length(index1)){
+  for (i in b:length(index1)) { 
+
+  # index2
+  if (index2[i]<0) {
+    weight <- c(weight,rep(c(1-phi,phi), times=c(index1[i], 0.5*index1[i]*
+             (index1[i]-1)))) 
     }  
-  if (control$index2[i]>0) {
-    weight <- c(weight,rep(c(1-phi,phi), times=c(control$index1[i], (control$index1[i]-1)))) 
+  if (index2[i]>0) {
+    weight <- c(weight,rep(c(1-phi,phi), times=c(index1[i], (index1[i]-1)))) 
     }  
-  if (control$index3[i]>0) {
-    if (control$p.ord.abs == TRUE){
-    weight <- c(weight,rep(c(1-phi,phi), times=c(control$index1[i], (control$index1[i]-1)))) 
-    } else {
-    weight <- c(weight,rep(c(1-phi,phi), times=c(1, (control$index1[i]-1))))
-    }
+  
+  # index3
+  if (index3[i]<0) {
+    weight <- c(weight,rep(c(1,1), times=c(index1[i], 0.5*index1[i]*(index1[i]-1)))) 
+    }  
+  
+  if (index3[i]>0) {
+    weight <- c(weight,rep(c(1,1), times=c(1, (index1[i]-1))))
     }  
   }
 }
 
-if (control$adapted.weights == TRUE)  {  
-weight <- weight * (1/abs(t(a.coefs(control$index1,control$index2,control$index3,
-               control$assured.intercept,control$p.ord.abs))%*%control$oml))  
+if (adapted.weights == TRUE)  {  
+weight <- weight * (1/abs(t(acoefs)%*%oml))  
 }
 
 return(weight)

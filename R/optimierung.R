@@ -1,32 +1,40 @@
 optimierung <-
-function (X, y, method, family, lambda, weight, weights, control, rank = FALSE, ...)
+function (X, y, method, family, lambda, weight, weights, control, l, oml, indices, phi, rank = TRUE, ...)
 
 {
-om <- control$oml
-if (sum(as.integer(is.na(om)))>0) { om[is.na(om)] <- 0 }
-A <- a.coefs(control$index1, control$index2, control$index3, control$assured.intercept, control$p.ord.abs)
+
+if (!is.null(control$initials) && length(oml)!=length(control$initials)) { 
+    warning ("control$initials do not fit, instead the default value is employed. \n ")
+    }
+if (!is.null(control$initials) && length(oml)==length(control$initials)) { 
+    initials <- matrix(control$initials, ncol=1)
+    dimnames(initials) <- dimnames(oml) 
+    } else {
+    initials <- oml
+    }
+if (any(is.na(initials))) { initials[is.na(initials)] <- 0 }
+
+acoefs <- a.coefs(indices, control, oml)
 n <- nrow(X)
+
 
 if (method == "nlm") {
 
     # functions nlm
       link <- family$linkinv
-      X. <- X
       abs.aprox <- function(x){x2<-x^2; x2 / (sqrt(x2+control$c))}
-      l <- control$l
-      f <- function(beta) {- l(y=y,mudach=link(X. %*% beta)) + lambda * sum(weight * abs.aprox(t(A)%*%beta))}
+      f <- function(beta) {- l(y=y,mudach=link(X %*% beta),weights) + lambda * sum(weight * abs.aprox(t(acoefs)%*%beta))}
 
     # nlm
-      try(lsg <- (nlm(f, om)) ) #suppressWarnings
+      try(lsg <- (nlm(f, initials)) ) #suppressWarnings
 
     # compute return / forward to method 'lqa'
       if (exists("lsg")==TRUE) {
           beta.i <- as.matrix(lsg$estimate)
-            dimnames(beta.i) <- dimnames(as.matrix(control$oml))
-          df.residual <- dim(X)[1]-dim(reduceX(round(beta.i, control$accuracy),
-            X,control$index1, control$index2, control$index3))[2] # df(error)
-          rank <- dim(reduceX(round(beta.i, digits=control$accuracy),
-            X,control$index1, control$index2, control$index3))[2] # df(model)
+            dimnames(beta.i) <- dimnames(as.matrix(oml))
+          reduction <- reduce(round(beta.i, control$accuracy), indices, control$assured.intercept)
+          df.residual <- dim(X)[1] - length(reduction$beta) # df(error)
+          rank <- length(reduction$beta) # df(model)
           iter <- lsg$iterations
           converged <- (lsg$code %in% c(1,2))
           } else {
@@ -34,25 +42,29 @@ if (method == "nlm") {
           warning ("Method 'nlm' failed, instead method 'lqa' was used. \n")
           }
     }
+    
+if (method == "lqa") { # penalty lqa
 
-if (method == "lqa") {
-
-    # penalty lqa
-      acoefs <- A
-      lqa <- function(betak){
-        diagonale <- as.vector( first.derivative(betak, lambda, weight, acoefs, control)/
+      appro <- function(betak, acoefs, weight){
+        diagonale <- as.vector( first.derivative(betak, lambda, weight, acoefs, indices, control)/
         ( sqrt((t(acoefs)%*%betak)^2 + control$c) ))
         output <- diag(diagonale, nrow=length(diagonale))
         return(output)
         }
-      A <- function(betak) {acoefs %*% lqa(betak) %*% t(acoefs)}
+}   
+
+if (method %in% c("lqa")) {
+
+    # functions
+      A <- function(betak) {acoefs %*% appro(betak, acoefs, weight) %*% t(acoefs)}  
 
     # initialization
-      beta.i <- om
-      eta.i <- X %*% as.vector(om)
-      beta.m <- matrix(0, nrow = control$maxi, ncol = length(om))
+      beta.i <- initials
+      eta.i <- X %*% as.vector(initials)
+      beta.m <- matrix(0, nrow = control$maxi, ncol = length(initials))
       stop.at <- control$maxi
       converged <- FALSE
+
 
    # P-IRLS
      for (i in 1:control$maxi) {
@@ -81,7 +93,7 @@ if (method == "lqa") {
       }
 
     beta.i <- matrix(beta.i, ncol=1)
-    rownames(beta.i) <- rownames(control$oml)
+    rownames(beta.i) <- rownames(oml)
     if (rank){
       H.i.1 <- Matrix(X.star) 
       suppressWarnings(try(H.i.2 <- H.i.1 %*% inv.pimat.new))
@@ -91,9 +103,10 @@ if (method == "lqa") {
     iter <- stop.at
 
     if (!converged && (stop.at == control$maxi))
-        cat("method 'lqa': convergence warning for lambda = ", lambda, "\n")
+        cat("Convergence warning for lambda = ", lambda, "\n")
 
     }
+    
 
 return(list(
      beta.i = beta.i,

@@ -31,29 +31,13 @@ if(control$standardize){
 }
 
 # define X.new
-special <- c("v", "p")
-int <- if (grepl("v\\(", strsplit(deparse(formula[3]), "\\+")[[1]][1]) )
-    0 else 1
-m <- model.frame(formula=terms(formula, specials=special, data=data), data)
-if (nrow(m) == 0)
-    stop("No (non-missing) observations")
-Terms <- attr(m, "terms")
-attr(Terms, "intercept") <- 1
-#options(contrasts = c("contr.effect", "contr.effect"))
-X <- model.matrix(Terms, m)
-if (int==0) X <- X[,-1]
-namen <- colnames(X)
-namen <- gsub(" ", "", namen, fixed=TRUE)
-namen <- sub("v(", "", namen, fixed=TRUE)
-namen <- sub("p(", "", namen, fixed=TRUE)
-namen <- gsub("(", "", namen, fixed=TRUE)
-namen <- gsub(")", "", namen, fixed=TRUE)
-namen <- sub(",", ".", namen, fixed=TRUE)
-colnames(X) <- namen
+dsgn <- design(formula[c(1,3)],data)
+X <- dsgn$X
+
 X.reduced <- X %*% object$x.reduction
 
 # response
-y <- model.extract(m, "response")
+y <- model.extract(dsgn$m, "response")
 if (is.factor(y)==TRUE){y <- as.numeric(y)-1}
 
 # type

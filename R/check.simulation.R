@@ -1,6 +1,6 @@
 check.simulation <-
 function (n, covariates, correlation = NULL, formula, 
-coefficients, family, sd, seed)
+coefficients, sd, seed)
 {
 is.wholenumber <- function(x, tol = .Machine$double.eps^0.5) abs(x - round(x)) < tol
 
@@ -45,9 +45,6 @@ coefficients <- as.vector(coefficients)
 if (!is.numeric(coefficients) || sum(as.integer(is.na(coefficients))) > 0) 
      stop ("Error in argument 'coefficients'. \n")
 
-if (is(family)!="family" || !(family$family %in% c("binomial", "poisson", "gaussian")))
-     stop ("'family' must be 'gaussian', 'binomial' or 'poisson'. \n")
-     
 if ( !is.numeric(sd) || sd <= 0 ) 
      stop ("'sd' must be numeric and positive. \n")
      

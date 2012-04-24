@@ -26,9 +26,12 @@ color = TRUE,
   if (!(type %in% c("path","score"))) 
        stop ("type is incorrect. \n")
      
-# penalties...
-if (x$method %in% c("nlm", "lqa")){
-if (type=="path"){
+
+if (x$method %in% c("AIC", "BIC")){ # forward selection
+
+} else { # penalties...
+ # if (x$method %in% c("nlm", "lqa", "jump.n.nmk", "jump.n.PIRLS", "jump.root", "jump.weighted.ridge", "jump.log")){
+ if (type=="path"){
 
     # check 
     if (is.matrix(x$plot[[1]])==FALSE)
@@ -56,8 +59,8 @@ if (type=="path"){
     assured.intercept <- x$control$assured.intercept
     f <- x$formula
     number.selectable.parameters <- x$number.selectable.parameters
-    index1 <- x$index1
-    index2 <- x$index2 + x$index3
+    index1 <- x$indices[[1]]
+    index2 <- x$indices[[2]] + x$indices[[3]]
     control <- x$control
     n.p <- length(index1)
 
@@ -66,7 +69,7 @@ if (type=="path"){
     path[,-1] <- round(path[,-1], digits=accuracy)
 
     i <- 2  
-    while (i<dim(path)[2] && dim(path)[1]-length(reduceBeta(path[,i],control$index1, control$index2, control$index3)) < number.selectable.parameters) {i<-i+1}
+    while (i<dim(path)[2] && dim(path)[1]-length(reduce(path[,i],x$indices,assured.intercept)$beta) < number.selectable.parameters) {i<-i+1}
     path <- path[,1:i]
     path <- path[,order(as.numeric(colnames(path)),decreasing=TRUE)]
     
@@ -272,10 +275,6 @@ if (type=="score"){
     
 }
 }
-
-# forward selection
-if (x$method %in% c("AIC", "BIC")){}
-
 
 }
 

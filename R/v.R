@@ -12,7 +12,7 @@ function(x,u, ...){
        stop("varying coefficient not well defined. \n")
     options(na.action=na.pass)
     if (is.factor(x) && nlevels(x)==2)
-       x <- -1*model.matrix(~ x, contrasts = list(x="contr.effect"))[,-1]
+       x <- model.matrix(~ x, contrasts = list(x="contr.effect"))[,-1]
     # design
     design <- cbind( int-rowSums(dummies) , dummies) * as.vector(x)
     colnames(design) <- paste(".",levels(u), sep="")

@@ -1,20 +1,24 @@
 abc.a.coefs <-
-function(index1, index2, splitting=FALSE) {
+function(indices, splitting=FALSE) {
 
+  # im Unterschied zu a.coefs hier nur 1en in Matrix!!
   a.coefs.nominal <- function (p = NULL, ...)
-      { if (p < 2)
-          stop ("There must be at least two levels, if the variable varies! \n")
-
+      { if (p > 1)
+        {
         a.coefs.mat <- matrix(nrow=p,ncol=2^p)  # sum(choose(p,1:p)) == 2^p
         for (i in 1:p) {
              a.coefs.mat[i,] <- rep(c(1,0), times = c(2^(p-i),2^(p-i)))
              }
         a.coefs.mat <- a.coefs.mat[,-c(2^p)]
-        return (a.coefs.mat) }
+        } else {
+        a.coefs.mat <- matrix(1,ncol=1,nrow=1)        
+        }
+        return (a.coefs.mat) 
+      }
 
-  a.coefs.ordinal <- function (p = NULL, ...)
-      { if (p < 2)
-          stop ("There must be at least two levels, if the variable varies! \n")
+  a.coefs.ordinal <- function (p = NULL, ...) 
+      { if (p > 1)
+        {
 
         if (p > 2)
           { a.coefs.mat <- diag(p)
@@ -26,13 +30,19 @@ function(index1, index2, splitting=FALSE) {
             a.coefs.mat <- cbind(a.coefs.mat,1)
           }
         else { a.coefs.mat <- cbind (diag (2), c(1,1)) }
+        } else {
+        a.coefs.mat <- matrix(1,ncol=1,nrow=1)
+        }
 
         return (a.coefs.mat) }
+       
+  index1 <- indices[[1]]
+  index2 <- indices[[2]]
 
   require(Matrix)
   A <- matrix(0,ncol=0,nrow=0)
   
-  if (splitting==TRUE){
+  if (splitting==TRUE){  # index1, index2 dann nur 1 Eintrag, wie Blöcke von Länge index1 zerlegt werden können
   for (i in 1:length(index1)) {
   if ( index2[i]<0 ) {  B <- a.coefs.nominal(p=index1[i])[,-1] 
                         B <- B[,which(B[1,]==1)]

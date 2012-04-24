@@ -1,11 +1,9 @@
 a.coefs <-
-function(index1, index2, index3, assured.intercept=TRUE, p.ord.abs=TRUE) {
+function(indices, control, beta) {
 
   a.coefs.nominal <- function (p = NULL, ...)   
       { if (p > 1)
         {
-        #  stop ("There must be more levels for proper penalization! \n")
-
         a.coefs.mat <- diag(p)
         for (i in 1:(p-1)){
         a.coefs.mat <- cbind(a.coefs.mat, 
@@ -19,7 +17,7 @@ function(index1, index2, index3, assured.intercept=TRUE, p.ord.abs=TRUE) {
 
   a.coefs.ordinal <- function (p = NULL, ...)  
       { if (p > 1)
-        { # stop ("There must be more levels for proper penalization! \n")
+        {
 
         if (p > 2)
           { h1 <- cbind (-diag (p-1), 0)
@@ -33,6 +31,11 @@ function(index1, index2, index3, assured.intercept=TRUE, p.ord.abs=TRUE) {
         }
         return (a.coefs.mat) 
       }
+
+  index1 <- indices[[1]]
+  index2 <- indices[[2]]
+  index3 <- indices[[3]]      
+  assured.intercept <- control$assured.intercept
 
   A <- matrix(0,ncol=0,nrow=0)
   if (assured.intercept==TRUE){
@@ -49,10 +52,8 @@ function(index1, index2, index3, assured.intercept=TRUE, p.ord.abs=TRUE) {
   
   if(index3[i]<0){A <- bdiag(A,a.coefs.nominal(p=index1[i]))}
   if(index3[i]>0){
-     if(p.ord.abs == TRUE){
-     A <- bdiag(A,a.coefs.ordinal(p=index1[i]))
-     } else {
-     A <- bdiag(A,a.coefs.ordinal(p=index1[i])[,-(2:(index1[i]))])}
+     w <- if (index1[i] > 1) -(2:(index1[i])) else 1
+     A <- bdiag(A,a.coefs.ordinal(p=index1[i])[,w])
   } 
   if(index2[i]==0 && index3[i]==0){A <- bdiag(A,matrix(0,ncol=0,nrow=index1[i]))}
   }

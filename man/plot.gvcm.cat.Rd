@@ -2,7 +2,7 @@
 \alias{plot.gvcm.cat}
 \title{Plot Method for gvcm.cat Objects}
 \description{
-\code{gvcm.cat()} offers two ways of visualizing a \code{\link{gvcm.cat}} object. 
+\code{gvcm.cat()} offers two ways of visualizing a \code{\link{gvcm.cat}} object with penalized estimation. 
 Default option \code{type="path"} delivers a graphic with the coefficient paths between 0 (= maximal penalization) and 1 (= no penalization). Maximal penalization is defined by the minimal penalty parameter \code{lambda} that sets all penalized coefficients to zero (to constant relating to the intercept and \code{assured.intercept = TRUE}). Minimal penalization means no penalization at all, i.e. \code{lambda = 0}. Of course the minimal penalty parameter causing maximal penalization depends on how selection and clustering of coefficients is defined (see function \code{\link{gvcm.cat}} and \code{\link{cat_control}}). Coefficients belonging to one covariate are plotted in the same color, coefficients that are not modified are plotted as dashed lines.\cr
 Option \code{type="score"} plots the cross-validation score (depending on \code{criterion} in \code{\link{cat_control}}) as a function of penalty parameter \code{lambda} and marks the chosen penalty parameter as a dotted line.
 }
@@ -23,7 +23,7 @@ xlim, ylim, main = NULL, indent = 0, color = TRUE, ...)
   \item{color}{logical; if \code{FALSE}, paths are gray and dotted/dashed}
   \item{\dots}{further arguments passed to or from other methods}
 }
-\details{Paths are drawn by connecting \code{steps} estimates related to different values of \code{lambda}, see \code{\link{cat_control}}. There is no plot for methods \code{"AIC"} and \code{"BIC"}.}
+\details{Paths are drawn by connecting \code{steps} estimates related to different values of \code{lambda} and constant \code{phi}, see \code{\link{cat_control}}. There is no plot for methods \code{"AIC"} and \code{"BIC"}.}
 \value{A plot.}
 
 \seealso{Function \code{\link{gvcm.cat}}}

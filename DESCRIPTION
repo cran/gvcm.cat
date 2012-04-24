@@ -2,8 +2,8 @@ Package: gvcm.cat
 Type: Package
 Title: Regularized Categorial Effects/Categorial Effect Modifiers in
         GLMs
-Version: 1.2
-Date: 2012-03-29
+Version: 1.3
+Date: 2012-04-24
 Author: Margret-Ruth Oelker
 Maintainer: Margret-Ruth Oelker <margret.oelker@stat.uni-muenchen.de>
 Description: The function fits generalized linear models with
@@ -18,6 +18,6 @@ Description: The function fits generalized linear models with
 Depends: R (>= 2.10.0), Matrix, MASS
 License: GPL (>= 2)
 LazyLoad: yes
-Packaged: 2012-03-29 15:52:51 UTC; oelker
+Packaged: 2012-04-24 16:39:03 UTC; oelker
 Repository: CRAN
-Date/Publication: 2012-03-30 15:57:55
+Date/Publication: 2012-04-25 04:39:27

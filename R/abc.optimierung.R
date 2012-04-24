@@ -1,9 +1,21 @@
 abc.optimierung <-
-function(method, X, y, family, weights, control)
+function(method, X, y, family, weights, control, indices, oml)
 {
+
+if (!is.null(control$initials) && length(oml)!=length(control$initials)) { 
+    warning ("control$initials do not fit, instead the default value is employed. \n ")
+    }
+if (!is.null(control$initials) && length(oml)==length(control$initials)) { 
+    initials <- matrix(control$initials, ncol=1)
+    dimnames(initials) <- dimnames(oml) 
+    } else {
+    initials <- oml
+    }
+if (any(is.na(initials))) { initials[is.na(initials)] <- 0 }
+
 # definitions
-index1 <- control$index1
-index2 <- control$index2 + control$index3
+index1 <- indices[[1]]
+index2 <- indices[[2]] + indices[[3]]
 assured.intercept <- control$assured.intercept
 n <- dim(X)[1]
 p <- dim(X)[2]
@@ -32,17 +44,15 @@ A.model <- matrix(nrow=dim(X)[2],ncol=0)
   index2[1] <- 0
   }
 
-# building basic A.model: intercept varies, but must not to be in the model => no special treatment!
-
 # initial values    
-  suppressWarnings(try(option <- glm.fit(x=X%*%A.model, y=y, weights = weights, family = family, intercept = FALSE)))
+  suppressWarnings(try(option <- glm.fit(x=X%*%A.model, y=y, weights = weights, family = family, intercept = FALSE))) #, start = as.vector(t(A.model)%*%initials))))
   if(exists("option")==TRUE) { abc.option <- option$aic + criterion(A.model) } else
                          { option <- NA
                            abc.option <- Inf 
                          } 
   abc.model <- abc.option
   A.option <- A.model
-  A <- as.matrix(abc.a.coefs(index1=index1, index2=index2))    
+  A <- as.matrix(abc.a.coefs(list(index1, index2)))    
   A.models <- list()
 
 # selecting and splitting
@@ -70,7 +80,7 @@ A.model <- matrix(nrow=dim(X)[2],ncol=0)
            dismissed <- as.matrix(A.model[,splitting.aspirants[i]])
            ind1 <- sum(dismissed)
            ind2 <- lom[which(dismissed==1)[1]]
-           splittings.1 <- abc.a.coefs(ind1,ind2,TRUE) 
+           splittings.1 <- abc.a.coefs(list(ind1,ind2),TRUE) 
            splittings.2 <- 1-splittings.1
            for (k in 1:dim(splittings.1)[2]){
                split.1 <- dismissed
@@ -87,7 +97,7 @@ A.model <- matrix(nrow=dim(X)[2],ncol=0)
       if (length(A.aspirants)>0) {
           for (i in 1:length(A.aspirants)) {
                rm(option)             
-               suppressWarnings(try(option <- glm.fit(x=X%*%A.aspirants[[i]], y=y, weights = weights, family = family, intercept = FALSE)))
+               suppressWarnings(try(option <- glm.fit(x=X%*%A.aspirants[[i]], y=y, weights = weights, family = family, intercept = FALSE))) #, start = as.vector(t(A.aspirants[[i]])%*%initials))))
                if(exists("option")==FALSE) { stop ("There are problems computing the model with a subset of coefficients only. \n") }
                abc <- c(abc, option$aic + criterion(A.aspirants[[i]]))
               } 
@@ -96,7 +106,7 @@ A.model <- matrix(nrow=dim(X)[2],ncol=0)
           best <- which(abc==min(abc))[1]
           abc.option <- abc[best]
           A.option <- A.aspirants[[best]]
-          option <- glm.fit(x=X%*%A.option, y=y, weights = weights, family = family, intercept = FALSE)
+          option <- glm.fit(x=X%*%A.option, y=y, weights = weights, family = family, intercept = FALSE) #, start = as.vector(t(A.option)%*%initials))
           if(option$converged==FALSE){       #
             abc.option <- abc.model + 1
             A.option <- A.model

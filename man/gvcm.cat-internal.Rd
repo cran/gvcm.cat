@@ -11,9 +11,7 @@
 \alias{optimierung}
 \alias{p}
 \alias{path.matrix}
-\alias{reduceBeta}
-\alias{reduceX}
-\alias{reductionX}
+\alias{reduce}
 \alias{v}
 \alias{weight.function}
 \title{Internal Function of gvcm.cat()}

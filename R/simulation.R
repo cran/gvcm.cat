@@ -12,7 +12,18 @@ seed=rpois(1,2348)*rnorm(1)
 
 {
 check.simulation(n, covariates, correlation = NULL, formula, 
-coefficients, family, sd, seed)
+coefficients, sd, seed)
+
+if (is.character(family))
+    family <- get(family, mode = "function", envir = parent.frame())
+if (is.function(family))
+    family <- family()
+if (is.null(family$family)) {
+    print(family)
+    stop("'family' not recognized. \n")
+}
+if (!(family$family %in% c("binomial", "poisson", "gaussian")))
+     stop ("'family' must be 'gaussian', 'binomial' or 'poisson'. \n")
 
 # definitions
 set.seed(seed)
@@ -70,23 +81,8 @@ if (ncol(data)!=2){
     }
 
 # model.matrix
-special <- c("v", "p")
-int <- if (grepl("v\\(", strsplit(deparse(formula[3]), "\\+")[[1]][1]) )
-    0 else 1
-m <- model.frame(formula=terms(formula[c(1,3)], specials=special, data=data),data)
-Terms <- attr(m, "terms")
-attr(Terms, "intercept") <- 1
-#options(contrasts = c("contr.effect", "contr.effect"))
-X <- model.matrix(Terms, m)
-if (int==0) X <- X[,-1]
-namen <- colnames(X)
-namen <- gsub(" ", "", namen, fixed=TRUE)
-namen <- sub("v(", "", namen, fixed=TRUE)
-namen <- sub("p(", "", namen, fixed=TRUE)
-namen <- gsub("(", "", namen, fixed=TRUE)
-namen <- gsub(")", "", namen, fixed=TRUE)
-namen <- sub(",", ".", namen, fixed=TRUE)
-colnames(X) <- namen
+dsgn <- design(formula[c(1,3)],data)
+X <- dsgn$X
 
 # response
 link <- family$linkinv
