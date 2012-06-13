@@ -41,7 +41,7 @@ for (i in 1:length(lambda)) {
         test.y <- y[T.index[[j]]]
         test.weights <- weights[T.index[[j]]]
         
-        model <- optimierung(X=training.X, y=training.y, method, family, lambda=lambda[i], weight, training.weights, control, l, oml, indices, phi, FALSE)
+        suppressWarnings(model <- optimierung(X=training.X, y=training.y, method, family, lambda=lambda[i], weight, training.weights, control, l, oml, indices, phi, FALSE))
         eval.cv <- evalcv(training.X, test.X, model$beta.i, control, training.y, training.weights)#
         test.mudach <- family$linkinv(eval.cv$test.X %*% eval.cv$beta)                            #
 #        test.mudach <- family$linkinv(test.X %*% model$beta.i)

@@ -47,7 +47,8 @@ plot=FALSE,
        for (i in 1:dim(data)[2]) {
           if (is.factor(data[,i])) {no <- c(no,i)}
        }
-       data[,-no] <- scale(data[,-no], center = FALSE, scale = TRUE)
+#       data[,-no] <- scale(data[,-no], center = FALSE, scale = TRUE)
+       data[,-no] <- scale(data[,-no], center = FALSE, scale = apply(data[,-no],2,sd,na.rm=TRUE))
     }
    
 # model.matrix

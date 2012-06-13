@@ -1,4 +1,4 @@
-932ecace94316a5ce9e34715e73473e9 *DESCRIPTION
+b2af9cfa6c5a186abf53e877b6160c85 *DESCRIPTION
 f1c03a3788be667ac062a5485f76c591 *NAMESPACE
 d1d0cf46208e7c77fcd944abe3fda4a7 *R/a.coefs.R
 ac9d3473d8b9bbeab00c2b1e2d17b1bd *R/abc.R
@@ -8,18 +8,18 @@ da3cafe12f9a503cd435a41893ffda11 *R/cat_control.R
 1c97003f453b1bff9d5cb0536726726c *R/check.simulation.R
 fecc4fd1541cb5ac0b189bd9fe5b7e3c *R/contr.effect.r
 716886e1dc563f4c635e328cda73e718 *R/cv.lambda.phi.R
-d3fecb89bd26ed79edb04e3c8c8d403a *R/cv.vectors.R
+dccc879221a351e4e55a276f1a91cb87 *R/cv.vectors.R
 a6ad433dbad18c174ee3abc3c2518cd5 *R/design.R
 eea0d4e59128068f7dcc58c3b355e16b *R/first.derivative.R
 5ba8ae38f8bc39da1f9c76b6b26f1b1d *R/gvcm.cat.R
-c92f89775743ef9dee5f3664ff34250e *R/gvcm.cat.default.R
+df1e989d0a53e2303524a74c8d4bdd9b *R/gvcm.cat.default.R
 06a09c0c29c4e62977f4cff005f09266 *R/index.R
 e1d44611035d9ea6c6bda903e167f4d8 *R/lambda.max.R
 03ba96230c3d607d6dfa20a18f08d502 *R/optimierung.R
 72afb1cb67684a6285d6c867fbff4e31 *R/p.R
 7f0d212b4c238fbec4a5e2a3d6670a4d *R/path.matrix.R
 d0968df36765b779ec3969ce650e50ec *R/pest.R
-af742b621bb9eeb589fafcd342fe7918 *R/plot.gvcm.cat.R
+24f800912c4d135a2f3c13df88aad6ba *R/plot.gvcm.cat.R
 0b0e026a32b52d1de1b9af72b2565791 *R/predict.gvcm.cat.R
 27202f69675faafd4350087340c67453 *R/print.gvcm.cat.R
 c28906f561069275a187a508aca9fbe8 *R/reduce.R
@@ -32,6 +32,6 @@ a0ca1500699d223781a05175a35fd682 *man/cat_control.Rd
 ba0cb16f036537c5d9a2ab35143cdb00 *man/gvcm.cat-internal.Rd
 26c0381e502c8e3d47e111e0bef28115 *man/gvcm.cat.Rd
 9fe216c292498a5af20382064265e1c0 *man/index.Rd
-af9203c109ee3773c85cebb31200fa43 *man/plot.gvcm.cat.Rd
+f79814aeeeaf8408a4a73d20f78c922b *man/plot.gvcm.cat.Rd
 c20337af7e01cd5d2b1dfb1f2fc0163f *man/predict.gvcm.cat.Rd
 edb01bb528cb2ee59a48174abc688429 *man/simulation.Rd

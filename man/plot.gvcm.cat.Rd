@@ -15,7 +15,7 @@ xlim, ylim, main = NULL, indent = 0, color = TRUE, ...)
   \item{x}{\code{\link{gvcm.cat}} object with value \code{plot} unequal \code{NA}}
   \item{accuracy}{integer; number of digits being compared when setting coefficents equal/to zero for plotting}
   \item{type}{one out of \code{"path"}, \code{"score"}; defines the type of plot}
-  \item{individual.paths}{logical; indicates whether the paths of all coefficients shall be plotted into one common figure (default) or in an individual figure per covariate; paths of single covariates can be selected by giving a vector containing the covariates' names as characters}
+  \item{individual.paths}{logical; indicates whether the paths of all coefficients shall be plotted into one common figure (default) or in an individual figure per covariate; paths of single covariates can be selected by giving a vector containing the covariates (as characters and as given in the formula, e.g.: \code{individual.paths=c("v(1,u)", "v(x1,u1)")})}
   \item{xlim}{the \code{x} limits \code{(x1, x2)} of the plot}
   \item{ylim}{the \code{y} limits \code{(y1, y2)} of the plot}
   \item{main}{title of the plot}

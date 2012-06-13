@@ -111,15 +111,21 @@ if (x$method %in% c("AIC", "BIC")){ # forward selection
          e <- c(1,cumsum(index1)[1:(n.p-1)]+1)
         index <- matrix(c(e, e+1, cumsum(index1)),nrow=n.p,ncol=3,byrow=FALSE)
         if (!is.logical(individual.paths)) {
-            coefs.names <- c("Intercept")  
             tf <- terms(f,specials="v", "p")
-            if(grepl("v\\(", as.character(attr(tf,"variables")[3]))) w <- 1 else w <- 0            
-            for (i in (3+w):length(attr(tf,"variables"))) {
-               if( grepl("p\\(", as.character(attr(tf,"variables")[i])) || grepl("v\\(", as.character(attr(tf,"variables")[i]))) {
-                 coefs.names <- c(coefs.names,as.character(attr(tf, "variables")[[i]][2]))
-               } else {
-                 coefs.names <- c(coefs.names,as.character(attr(tf, "variables")[[i]]))
-               }}
+#            if(grepl("v\\(", as.character(attr(tf,"variables")[3]))) w <- 1 else w <- 0 # 1 falls varying intercept           
+    arg <- strsplit(gsub(" ", "", x$formula[length(x$formula)]), "\\+")  # intercept
+    w <- if (grepl("v\\(1",arg)==TRUE) 1 else 0                          # intercept
+    coefs.names <- if (w==0) c("1")  else c()                            # 
+#            for (i in (3+w):length(attr(tf,"variables"))) {
+#               if( grepl("p\\(", as.character(attr(tf,"variables")[i])) || grepl("v\\(", as.character(attr(tf,"variables")[i]))) {
+#                 coefs.names <- c(coefs.names,as.character(attr(tf, "variables")[[i]][2]))
+#               } else {
+#                 coefs.names <- c(coefs.names,as.character(attr(tf, "variables")[[i]]))
+#               }}
+
+#            coefs.names <- if (w==0) c(coefs.names, as.character(attr(tf,"term.labels"))) else c(coefs.names, as.character(attr(tf,"term.labels"))[-1])
+            coefs.names <- c(coefs.names, gsub(" ", "", as.character(attr(tf,"term.labels"))))
+            individual.paths <- gsub(" ", "", individual.paths)
             which.coefs <- c()
             for (i in 1:length(coefs.names)) {
                    if (coefs.names[i] %in% individual.paths) {
