@@ -6,7 +6,7 @@ correlation = NULL,
 formula, 
 coefficients, 
 family, 
-sd=1,
+sd=1, # for family==Gamma(): rate!
 seed=rpois(1,2348)*rnorm(1)
 )
 
@@ -22,8 +22,9 @@ if (is.null(family$family)) {
     print(family)
     stop("'family' not recognized. \n")
 }
-if (!(family$family %in% c("binomial", "poisson", "gaussian")))
-     stop ("'family' must be 'gaussian', 'binomial' or 'poisson'. \n")
+if (!(family$family %in% c("binomial", "poisson", "Gamma", "gaussian")))
+     stop ("'family' must be 'gaussian', 'binomial', 'Gamma' or 'poisson'. \n")
+if (family$family=="Gamma") family <- Gamma(link="log")
 
 # definitions
 set.seed(seed)
@@ -90,6 +91,7 @@ E <- as.vector(link(as.matrix(X) %*% coefficients ))
 if (family$family == "gaussian") {y <- rnorm(n,mean=E, sd= sd)}
 if (family$family == "binomial") {y <- (rbinom(n, 1, E))}
 if (family$family == "poisson")  {y <- rpois(n, E)} 
+if (family$family == "Gamma")    {y <- rgamma(n, shape = E * sd, rate = sd)} 
 if (sum(as.integer(is.na(y))) > 0)
     stop ("Response contains NAs. \n")
 

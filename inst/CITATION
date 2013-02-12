@@ -7,7 +7,7 @@ citEntry(entry="Manual",
 title = "gvcm.cat: Regularized Categorial Effects/Categorial Effect Modifiers in GLMs",
 author = personList(as.person("Margret-Ruth Oelker"),
 person("R Development Core Team")),
-year = 2012,
+year = 2013,
 note = vers,
 textVersion =
 paste("Margret-Ruth Oelker ",

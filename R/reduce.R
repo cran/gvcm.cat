@@ -1,34 +1,64 @@
 reduce <-
-function(beta, indices, assured.intercept)
+function(beta, indices, assured.intercept, accuracy)
 {
 C <- diag(1, length(beta))
-dimnames(C) <- list(rep(1:length(indices[[1]]),times=indices[[1]]), rownames(beta))
+dimnames(C) <- list(rep(1:ncol(indices),times=indices["index1",]), rownames(beta))
+A <- C
+
+indexs <- as.matrix(indices[-c(1,3),])
+index1 <- indices["index1",]
+index2 <- indices["index2",]
+index2b <- indices["index2b",]
+indexCo <- rep(1:ncol(indices), indices["index1",]) # zu welchem coefficient welche Kovariable?!
 
 i <- 1
-while (i <= dim(C)[2]) {
-  if ((indices[[2]]+indices[[3]])[eval(parse(text=rownames(C)[which(C[,i]==1)]))]!=0 ){ # exclude only penalized coefficients
+while (i <= ncol(C) ) { 
+  if ((colSums(indexs))[eval(parse(text=rownames(C)[which(C[,i]==1)]))]!=0 )  # exclude only penalized coefficients        
+  { 
+      j <- indexCo[which(C[,i]==1)] # bei welcher variable ist i grade?!
+      married <- c( (sum(index1[1:j]) - index1[j] + 1) : sum(index1[1:j]) ) # welche koefs gehören dazu?
+
       # exclude zero coefficients
-      if (sum(beta*C[,i])==0 && ifelse(assured.intercept, sum(as.matrix(C[,-i])[c(1:indices[[1]][1]),])!=0, TRUE)) { # keep assured.intercept, even if zero
+      if (sum(beta*C[,i])==0 && ifelse(index2b[j]==0 && index2[j]!=0, sum(as.matrix(C[,-i])[married,])!=0, TRUE))  # keep assured.intercept, even if zero
+      { 
           namen <- colnames(C)[-i]
           C <- as.matrix(C[,-i])
-          colnames(C) <- namen
+          A <- as.matrix(A[,-i])
+          colnames(C) <- colnames(A) <- namen
+          
+      # exclude equal coefficients     
       } else {
-      # exclude equal coefficients
           equal <- which((beta - rep(sum(beta*C[,i]), length(beta)))==0)
-          married <- which(rownames(C)==eval(parse(text=rownames(C)[which(C[,i]==1)])) )
+          # married <- which(rownames(C)==eval(parse(text=rownames(C)[which(C[,i]==1)])) )
           null <- equal[which(equal %in% married)]
-          A <- C
+          # A <- C
           A[null,i] <- 1
-          if (length(null)>1 && ifelse(assured.intercept, sum(as.matrix(C[,-which(colSums(A * A[,i])==1)])[c(1:indices[[1]][1]),])!=0, TRUE)){
-             namen <- colnames(C)[-which(colSums(A * A[,i])==1)]
-             C <- as.matrix(C[,-which(colSums(A * A[,i])==1)])
-             colnames(C) <- namen
+          raus <- which(colSums(A * A[,i])==1)
+          if (length(null)>1 && ifelse(assured.intercept, 
+               sum(as.matrix(C[,-raus])[c(1:indices["index1",1]),])!=0, TRUE) && 
+               any(indices[c("index2", "index3", "index4", "index5", "index7", "index8"),j]!=0)
+             )
+             {
+             namen <- colnames(C)[-raus]
+             C <- as.matrix(C[,-raus])
+             A <- as.matrix(A[,-raus])
+             colnames(C) <- colnames(A) <- namen
              }
+          if (all(indices[c("index2", "index3", "index4", "index5", "index7", "index8"),j]==0)) A[,i] <- C[,i]
           i <- i+1
-          }
+      }
+      
   } else {i <- i+1}
 }
 
-return(list(C=C, beta=t(C) %*% beta))
+return(list(C=A, A=C, beta=t(C) %*% beta))
 
 }
+
+# in the function, it holds:
+# C to reduce beta
+# A to reduce x
+
+# in the output, it holds:
+# A to reduce beta
+# C to reduce x

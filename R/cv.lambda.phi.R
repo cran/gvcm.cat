@@ -1,32 +1,49 @@
-cv.lambda.phi <-
-function(X, y, method, family, lambda, phi, L.index, T.index, 
-weights, control, dev, d, l, oml, indices, ...)           
+cv.lambda <-
+function(
+x, 
+y, 
+weights, 
+family,
+control, 
+acoefs, # a.coefs element
+lambda, # TRUE or vector for cv
+phis,
+weight, # weight.const
+start,
+offset,
+L.index, T.index, 
+indices, 
+...
+)
+
 {
 
-# lambda vektor
+# lambda vector
 if(!is.logical(lambda)){
-  cross <- cv.vectors(X, y, method, family, lambda=lambda, phi, L.index, T.index, weights, control, dev, d, l, oml, indices)
+  cross <- cv.vectors(x, y, weights, family, control, acoefs, lambda=lambda, phis,
+           weight, start, offset, L.index, T.index, indices)
   lambda <- cross$lambda
   lambdas <- cross$lambdas
-  phi <- cross$phi
-  score <- cross$score
-  colnames(score) <- as.character(lambdas)
+  scores <- cross$score
+  scores.sd <- cross$score.sd
+  colnames(scores) <- as.character(lambdas)
+  coefs <- cross$coefs
 }
 
 # lambda==TRUE
 if(is.logical(lambda)){
 
   # definitions
-  p <- dim(X)[2]
-  basis <- exp(1/4*log(control$lambda.upper))
-  opt.lambdas <- matrix(nrow=2,ncol=length(phi))
-  colnames(opt.lambdas) <- as.character(phi)
-  scores <- list()
+  p <- ncol(x)
+  basis <- exp(1/4*log(control$lambda.upper-control$lambda.lower))
 
-  for (r in 1:length(phi)){
-  score <- matrix(nrow=1, ncol=0)
+  scores <- matrix(nrow=1, ncol=0)
+  scores.sd <- matrix(nrow=1, ncol=0)
+  coefs <- matrix(nrow=nrow(acoefs$A), ncol=0)
   lambdas <- c()
-  if (basis >1) {closer <- round(basis^(0:4), digits=2)} else {closer <- seq(0,control$lambda.upper,by=control$lambda.accuracy)}
+  closer <- if (basis >1) {round(control$lambda.lower + c(.1, basis^(0:4)), 2)} else 
+#  closer <- if (basis >1) {round(control$lambda.lower + c(basis^(0:4)), 2)} else 
+         {seq(control$lambda.lower, control$lambda.upper, by=control$lambda.accuracy)}
   i <- 1
 
   while (max(closer)-min(closer)>=control$lambda.accuracy && i <11){
@@ -34,35 +51,55 @@ if(is.logical(lambda)){
       closer <- closer[which(closer<=control$lambda.upper)]
       closer <- unique(closer)
       if (any(closer %in% lambdas)) closer <- closer[-which(closer %in% lambdas)]
+      
       if (length(closer)>0){
-          cross <- cv.vectors(X, y, method, family, lambda=closer, phi[r], L.index, T.index, weights, control, dev, d, l, oml, indices)
+          cross <- cv.vectors(x, y, weights, family, control, acoefs, lambda=closer, phis,
+                   weight, start, offset, L.index, T.index, indices)
 
-          score <- cbind(score, cross$score)
+          scores <- cbind(scores, cross$score)
+          scores.sd <- cbind(scores.sd, cross$score.sd)
           lambdas <- c(lambdas, cross$lambdas)
-          lambda <- max(lambdas[which(score==min(score))])[1]
+          lambda <- max(lambdas[which(scores==min(scores))])[1]
+          coefs <- cbind(coefs, cross$coefs)
       }
 
+      j <- log(lambda-control$lambda.lower)/log(basis)
+      closer <- round(control$lambda.lower + basis^(c((j-2^(-i)), (j+2^(-i)))),digits=2)
       i <- i+1
-      j <- log(lambda)/log(basis)
-      closer <- round(basis^(c((j-2^(-i)), (j+2^(-i)))),digits=2)
 
   }
 
-  opt.lambdas[1,r] <- lambda
-  opt.lambdas[2,r] <- round((score[which(score==min(score))])[1], digits=2)
-  score <- score[,order(as.numeric(colnames(score)))]
-  scores[[r]] <- score
+##
+  if (control$lambda.lower==0) {
+      closer <- seq(.05, .5, length.out=10)
+      if (any(closer %in% lambdas)) closer <- closer[-which(closer %in% lambdas)]
+  
+      if (length(closer)>0){
+          cross <- cv.vectors(x, y, weights, family, control, acoefs, lambda=closer, phis,
+                   weight, start, offset, L.index, T.index, indices)
+  
+          scores <- cbind(scores, cross$score)
+          scores.sd <- cbind(scores.sd, cross$score.sd)
+          lambdas <- c(lambdas, cross$lambdas)
+          lambda <- max(lambdas[which(scores==min(scores))])[1]
+          coefs <- cbind(coefs, cross$coefs)
+      }
   }
-  
-  which.phi <- min(which(opt.lambdas[2,]==min(opt.lambdas[2,])))[1]
-  colnames(opt.lambdas) <- NULL
-  lambda <- opt.lambdas[1,which.phi]
-  phi <- phi[which.phi]
-  score <- scores[[which.phi]]
-  lambdas <- as.numeric(colnames(score))
-  
+##
+
+  coefs  <- coefs[,order(as.numeric(colnames(coefs)))]
+  scores <- scores[,order(as.numeric(colnames(scores)))]
+  scores.sd <- scores.sd[,order(as.numeric(colnames(scores.sd)))]
+
+  if (control$tuning.criterion=="1SE") {
+       which.lambda <- which(lambdas==lambda)
+       lambda.sd <- scores.sd[which.lambda]
+       lambda.can <- which( lambdas[which(scores <= (scores[which.lambda] + lambda.sd))] >= lambda )
+       lambda <-  max(lambdas[lambda.can]) # if (length(lambda.can)>0) max(lambdas[lambda.can]) else lambda
+      }
+ 
 }
     
-return(list(lambda=lambda, phi=phi, score=score, lambdas=lambdas))
+return(list(lambda=lambda, score=scores, coefs=coefs, score.sd=scores.sd))
 }
 

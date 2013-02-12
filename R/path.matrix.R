@@ -1,19 +1,48 @@
 path.matrix <-
-function(X, y, method, family, lambda, coefficients, path, 
-weight, weights, control, l, oml, indices, phi, ...)
-{   
-new.lambdas <- round(c(lambda-lambda/10*(7:9), (lambda+lambda/10*(7:9))[which((lambda+lambda/10*(7:9))<control$lambda.upper)]),digits=2) 
+function(
+x, 
+y, 
+weights,
+family, 
+control, 
+acoefs,
+lambda, 
+phis, # vector length L
+weight, # vector length L 
+which.a, # vector length L
+start,
+offset,
+coefficients, 
+path, 
+oml, 
+...
+)
 
-new.path <- matrix(nrow=dim(path)[1],ncol=length(new.lambdas)) 
+{   
+# new.lambdas <- round(c(lambda-lambda/10*(7:9), (lambda+lambda/10*(7:9))[which((lambda+lambda/10*(7:9))<control$lambda.upper)]), 2) 
+nl1 <- c(lambda-lambda/10*(7:9), lambda, (lambda+lambda/10*(7:9))[which((lambda+lambda/10*(7:9))<control$lambda.upper)])
+nl2 <- if(control$tuning.criterion=="deviance") {
+       seq(from=control$lambda.lower, to=control$lambda.upper, length.out=control$steps)[-c(1)]
+       } else {
+       seq(from=control$lambda.lower, to=control$lambda.upper, length.out=control$steps)[-c(1,control$steps)]
+       }
+new.lambdas <- round(c(nl1, nl2),2)
+
+new.path <- matrix(nrow=length(oml),ncol=length(new.lambdas))
+ 
 for (i in 1:(length(new.lambdas))){
-  opt <- optimierung(X, y, method, family, lambda=new.lambdas[i], weight, weights, control, l, oml, indices, phi, FALSE)
-  new.path[,i] <- round(opt$beta.i, digits=control$accuracy)
+
+  opt <- gvcmcatfit(x, y, weights, family, control, acoefs, lambda=new.lambdas[i], 
+                     phis, weight, which.a, start, offset)
+  
+  new.path[,i] <- opt$coefficients
+  
   }
  
 # add oml, coefficients
 new.path <- cbind(oml, coefficients, new.path)
 colnames(new.path) <- as.character(c(0, lambda, new.lambdas))
-path <- cbind(new.path,path)  
+path <- if (!any(is.na(path))) cbind(new.path,path)  else new.path
 
 # sortieren nach lambdas
 path <- path[,order(as.numeric(colnames(path)))]

@@ -8,12 +8,13 @@ family, sd = 1, seed = rpois(1, 2348) * rnorm(1))
 }
 \arguments{
   \item{n}{number of observations; must be large enough, so that all categories of all factor variables exist and therefore vector \code{coefficients} fits}
-  \item{covariates}{description of the covariates and effect modifiers included in the model; format: \code{list( name of variable 1 = list("distribution", c(parameters), "level of measurement"), name of variable 2 = ...)}}
+  \item{covariates}{description of the covariates and effect modifiers included in the model; format: \code{list( name of variable 1 = list("distribution", c(parameters), 
+  "level of measurement"), name of variable 2 = ...)}}
   \item{correlation}{optional matrix, specifies the correlation of Gaussian covariates}
   \item{formula}{formula like in \code{\link{gvcm.cat}} (all variables contained in \code{\link{formula}} must be defined in \code{covariates})}
   \item{coefficients}{true parameter vector}
-  \item{family}{a \code{\link{family}} object; currently only \code{gaussian}, \code{binomial}, \code{poisson}}
-  \item{sd}{if needed, i.e. if \code{family = gaussian}, standard deviation of response}
+  \item{family}{a \code{\link{family}} object; currently only \code{gaussian}, \code{binomial}, \code{poisson}, \code{Gamma}}
+  \item{sd}{if \code{family = gaussian}, standard deviation of response; if \code{family = Gamma} the rate parameter like in \code{\link{rgamma}}}
   \item{seed}{specifies the to be used seed}
 }
 \details{

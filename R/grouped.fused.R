@@ -1,8 +1,5 @@
-v <-
-function(x, u, n="L1", bj=TRUE){
-    if (!(n %in% c("L1", "L0", "L2", "elastic")))
-       stop("norm 'n' must be out of 'L0', 'L1', 'L2'. \n")
-
+grouped.fused <-
+function(x, u){
     old.contr <- getOption("contrasts")
 
     # u
@@ -25,4 +22,3 @@ function(x, u, n="L1", bj=TRUE){
     options(contrasts = old.contr)
     return(design)
 }
-

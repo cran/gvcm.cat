@@ -10,7 +10,7 @@ cat("Removed parameters: ", x$number.removed.parameters, " out of ",
     x$number.selectable.parameters, "\n", sep="")
 if(x$method %in% c("nlm","lqa")){
 cat("Penalization parameter lambda = ", x$tuning[[1]], "\n", sep="")
-cat("Weighting parameters: phi = ", x$tuning[[2]], ", adapted.weights = ", 
+cat("Tuning: ",  "adapted.weights = ", 
     x$control$adapted.weights, ", assured.intercept = ", 
     x$control$assured.intercept, "\n", sep="")
 }
