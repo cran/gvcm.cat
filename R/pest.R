@@ -93,7 +93,13 @@ plot=FALSE,
   control$elastic <- elastic
 
 # a.coefs + number.selectable parameters
-  acoefs <- a.coefs(indices, control, beta=oml, x)
+  # estimate with small ridge penalty for more stable adaptive weights
+  if (control$adapted.weights.ridge==FALSE) {
+      est.adapt <- oml
+      } else {
+      est.adapt <- gvcmcatfitridge(x, y, weights = weights, family = family, control=control, offset = offset)$coefficients
+      }
+  acoefs <- a.coefs(indices, control, beta=est.adapt, x)
   pp <- colSums(as.matrix(indices[-c(1,3),])!=0) # covariates with penalized coefficients
   n.sp <- sum(indices[1,which(pp>=1)]) - sum(abs(indices["index2",])*(1-indices["index2b",]))  
      if (any(indices["index6",]!=0)) {n.sp <- n.sp - length(which(colnames(indices)[which(indices["index6",]!=0)]=="L2"))}
@@ -208,6 +214,7 @@ output <- list(
     number.removed.parameters = nvars-ncol(x.reduced),
     x.reduction = x.reduction,
     beta.reduction = reduction$A
+    , test = est.adapt
     )
 
 return(output)

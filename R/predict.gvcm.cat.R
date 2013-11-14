@@ -23,24 +23,19 @@ type="link", # "link", "response"
         newdata <- environment(formula)
     data <- na.omit(newdata)
 
-# standardize??
-    no <- which(names(data)==formula[[2]])
-    for (i in 1:dim(data)[2]) {
-       if (is.factor(data[,i])) {no <- c(no,i)}
-    }
-    if(control$center){
-       data[,-no] <- scale(data[,-no], center = TRUE, scale = FALSE)
-    }
-    if(control$standardize){
-       data[,-no] <- scale(data[,-no], center = FALSE, scale = apply(data[,-no],2,sd,na.rm=TRUE))
-    }
-
-
 # model.matrix
     dsgn <- design(formula[c(1,3)],data)
     x <- dsgn$X
     x.reduced <- x %*% object$x.reduction
     
+# standardize??
+    if(control$center){
+       x <- scale(x, center = object$centering, scale = FALSE)           
+    }
+    if(control$standardize){
+       x <- scale(x, center = FALSE, scale = object$scaling)
+    }
+
 # response
     Y <- model.extract(dsgn$m, "response")
     if (is.factor(Y)==TRUE){Y <- as.numeric(Y)-1}

@@ -39,7 +39,7 @@ function(indices, splitting=FALSE) {
   index1 <- indices[[1]]
   index2 <- indices[[2]]
 
-  require(Matrix)
+#  require(Matrix)
   A <- matrix(0,ncol=0,nrow=0)
   
   if (splitting==TRUE){  # index1, index2 dann nur 1 Eintrag, wie Blöcke von Länge index1 zerlegt werden können

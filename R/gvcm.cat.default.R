@@ -46,22 +46,11 @@ plot=FALSE,
     if (!(method %in% c("lqa", "AIC", "BIC"))) # check method!!
          stop ("method is incorrect. \n")
 
-# standardize + na remove
+# na remove
     if (missing(data))
         data <- environment(formula)
     data <- na.omit(data)
-
-    no <- which(names(data)==formula[[2]])
-    for (i in 1:dim(data)[2]) {
-       if (is.factor(data[,i])) {no <- c(no,i)}
-    }
-    if(control$center){
-       data[,-no] <- scale(data[,-no], center = TRUE, scale = FALSE)
-    }
-    if(control$standardize){
-       data[,-no] <- scale(data[,-no], center = FALSE, scale = apply(data[,-no],2,sd,na.rm=TRUE))
-    }
-   
+ 
 # model.matrix
     dsgn <- design(formula,data)
     X <- dsgn$X
@@ -78,11 +67,29 @@ plot=FALSE,
         weights <- (Y[,1]+Y[,2])*weights 
         Y <- Y[,1]/(Y[,1]+Y[,2])
         } 
-    #weights <- weights*n/sum(weights)    
     if (family$family=="binomial" && (sum(Y>1) || sum(Y<0))) 
         stop("No binomial response. \n") 
     if (family$family=="Gamma" && (sum(Y<=0))) 
         stop("No Gamma-distributed response. \n") 
+
+# standardize 
+    if(control$center){
+       if (sum(X[,1])==n || sum(X[,1])==sum(weights)) {
+           centering <- c(0, colSums(diag(weights)%*%X[,-1])/sum(weights)) # colMeans(X[,-1])
+#           X[,-1] <- scale(X[,-1], center = centering[-1], scale = FALSE)
+           } else {
+           centering <- colSums(diag(weights)%*%X)/sum(weights) # colMeans(X[,-1])
+           }
+           X <- scale(X, center = centering, scale = FALSE)           
+    }
+    if(control$standardize){
+       if (sum(X[,1])==n || sum(X[,1])==sum(weights)) {
+             scaling <- c(1, sqrt(colSums(t((t(X[,-1]) - colSums(diag(weights)%*%X[,-1])/sum(weights))^2*weights))/(sum(weights)-1)))
+           } else {
+             scaling <- sqrt(colSums(t((t(X) - colSums(diag(weights)%*%X)/sum(weights))^2*weights))/(sum(weights)-1))
+           }
+       X <- scale(X, center = FALSE, scale = scaling)
+    }   
 
 # definitions
     indices <- index(dsgn, data, formula)
@@ -116,6 +123,8 @@ plot=FALSE,
     output$xlevels <- .getXlevels(dsgn$Terms, dsgn$m)
     output$bootstrap.errors <- bootstrap.errors
     output$method <- method
+    output$scaling <- if(control$standardize == TRUE) scaling else NULL
+    output$centering <- if(control$center == TRUE) centering else NULL
     class(output) <- c("gvcm.cat", "glm", "lm")
     output
 

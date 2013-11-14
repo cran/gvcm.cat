@@ -69,9 +69,6 @@ if (control$tuning.criterion %in% c("GCV", "UBRE")) {
 # if K-fold/deviance
 if(control$tuning.criterion %in% c("deviance", "1SE")){
 
-#    dev.resids <- family$dev.resids
-#    dev <- function(y, mu, weights) sum(dev.resids(y, mu, weights))
-
 if(family$family == "binomial"){
   l <- function(y,mudach,weights=weights){sum((y*log(mudach) + (1-y)*log(1-mudach))*weights + lchoose(weights,y*weights))}
   d <- function(y,mudach,weights=weights){e <- matrix(0, nrow=length(y), ncol=1)
@@ -117,10 +114,10 @@ dev <- function(y,mudach,weights) {sum(d(y=y,mudach=mudach, weights))}
        }
 
     for (i in 1:length(lambda)) {
-#        loss <- 0
+
         loss <- c()
         for (j in 1:control$K){
-    
+  
             training.x <- x[L.index[[j]],]  
             training.y <- y[L.index[[j]]]
             training.weights <- weights[L.index[[j]]]
@@ -128,18 +125,26 @@ dev <- function(y,mudach,weights) {sum(d(y=y,mudach=mudach, weights))}
             test.y <- y[T.index[[j]]]
             test.weights <- weights[T.index[[j]]]
             
+            if(control$standardize){
+               if (sum(x[,1])==n || sum(x[,1])==sum(weights)) {
+                     scaling <- c(1, sqrt(colSums(t((t(training.x[,-1]) - colSums(diag(training.weights)%*%training.x[,-1])/sum(training.weights))^2*training.weights))/(sum(training.weights)-1)))
+                   } else {
+                     scaling <- sqrt(colSums(t((t(training.x)      - colSums(diag(training.weights)%*%training.x)     /sum(training.weights))^2*training.weights))/(sum(training.weights)-1))
+                   }
+               training.x <- scale(training.x, center = FALSE, scale = scaling)
+               test.x <- scale(test.x, center = FALSE, scale = scaling)
+            }
+
             suppressWarnings(model <- gvcmcatfit(training.x, training.y, weights=training.weights, family,
                   control, acoefs, lambda=lambda[i], phis=phis, weight, 
                   which.a, start = start, offset = offset))
     
-            #test.mudach <- family$linkinv(test.x %*% model$coefficients) 
             eval.cv <- evalcv.(training.x, test.x, model$coefficients, control, training.y, training.weights)
             test.mudach <- family$linkinv(eval.cv$test.x %*% eval.cv$coefficients)                            
             
-#            loss <- loss +  crit(test.y, test.mudach, test.weights)
             loss <- c(loss, crit(test.y, test.mudach, test.weights))
         }
-#        losses[1,i] <- loss 
+
         losses[1,i] <- sum(loss) / control$K
         losses.sd[1,i] <- sd(loss) * (control$K-1) / control$K  #######
     }

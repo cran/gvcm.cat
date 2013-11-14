@@ -108,7 +108,7 @@ dsgn, data=data, formula=formula
 #                     {index.hier[i+r] <- which(label==variables[welche])+r}
 #                  }}
 #             }}
-# interaktionen ganz verboten, weil p()*numeric entspricht v() und weil p()*cat Unsinn.
+# interaktionen ganz verboten, weil p()*numeric entspricht v() und weil p()*cat Unsinn für penalty.
     
             } # for
       } # uberhaupt others

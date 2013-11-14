@@ -45,7 +45,7 @@ weights, offset, start, control = cat_control(), plot=FALSE, ...)
   \item{tuning}{a list; tuning parameters for penalized estimation; \code{lambda} is the scalar, overall penalty parameter; 
        if \code{lambda} is a vector of values, these values are cross-validated; 
        if \code{lambda = TRUE}, \code{lambda} is cross-validated on log scale between \code{lambda.lower} and \code{lambda.upper}; see \code{\link{cat_control}}.
-       If \code{lambda} is a vector with the same length as elements in the \code{formula} and if \code{specific = TRUE}, the entries of \code{lambda} are interpreted as specific tuning parameters for each entry of the formula. 
+       If \code{lambda} is a vector with the same length as elements in the \code{formula} and if \code{specific} equals a vector of proper length, the entries of \code{specific} are interpreted as specific tuning parameters for each entry of the formula. 
        \code{phi}, \code{grouped.fused}, \code{elastic}, \code{vs} and \code{spl} are parameters that weigh the terms of some penalties; 
        must be out of intervall )0,1(; the default \code{0.5} corresponds to equal weights
        }

@@ -23,7 +23,7 @@ phi.gf[which(phis.gf==1)]  <- grouped.fused     # differences
 phi.gf[which(phis.gf==-1)] <- 1-grouped.fused   # grouped
 
 phi.vs[which(phis.vs==1)]  <- vs    # splines
-phi.vs[which(phis.vs==-1)] <- 1-vs  # grouped
+phi.vs[which(phis.vs==-1)] <- 1-vs  # grouped    
 
 phi.sp[which(phis.sp==1)]  <- spl    # splines
 phi.sp[which(phis.sp==-1)] <- 1-spl  # grouped

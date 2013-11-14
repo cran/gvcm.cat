@@ -7,15 +7,17 @@ g = 0.5, epsilon = 10^(-5), maxi = 250, c = 10^(-5), gama = 20, steps = 25, nu =
 tuning.criterion = "GCV", K = 5,
 cv.refit = FALSE, 
 lambda.upper=50, lambda.lower=0, lambda.accuracy=.01, scaled.lik=FALSE,
-adapted.weights=FALSE, adapted.weights.adj = FALSE,
+adapted.weights=FALSE, adapted.weights.adj = FALSE, adapted.weights.ridge=FALSE,
 assured.intercept=TRUE, 
 level.control = FALSE, 
 case.control = FALSE,
 pairwise = TRUE, # sollen pairwise differences pairwise differences sein? falls nicht: werden durch weighted adjacent differences ersetzt.
-grouped.cat.diffs = FALSE,
+grouped.cat.diffs = FALSE,  # bei cat covariate: grouped auf differenzen.
 bootstrap = 0, 
 start.ml = FALSE,
-L0.log = TRUE, 
+L0.log = TRUE, # approximation with logistic function!! 
+subjspec.gr = FALSE, # grouped fused penalty on effect modifier in model with subject specific coefficients?! betablocker
+high = NULL, # unabled if NULL, sonst positive integer, gibt order differenzen bei nominalen variablen in penalty an. wird auf Null gesetzt falls pairwise=FALSE
 ...)
 
 {
@@ -87,6 +89,9 @@ if (!is.numeric(lambda.accuracy) || lambda.accuracy <= 0 || length(lambda.accura
 if (!is.logical(scaled.lik))
      stop ("scaled.lik must be logical. \n")
 
+if (!is.logical(adapted.weights.ridge))
+     stop ("adapted.weights.ridge must be logical. \n")
+
 if (!is.logical(adapted.weights.adj))
      stop ("adapted.weights.adj must be logical. \n")
 
@@ -120,6 +125,16 @@ if (!is.logical(start.ml))
 
 if (!is.logical(L0.log))
      stop ("L0.log must be logical. \n")
+
+if (!is.logical(subjspec.gr))
+     stop ("subjspec.gr must be logical. \n")
+     
+if (pairwise == FALSE) {high <- NULL}     
+if (!is.null(high) && !is.numeric(high) )  
+     stop ("high must be NULL or a positive integer. \n")
+if (is.numeric(high) && high < 1)
+     stop ("high must be NULL or a positive integer. \n")
+if (is.numeric(high)) high <- as.integer(high)     
     
 
 ###  output
@@ -133,7 +148,7 @@ tuning.criterion = tuning.criterion, K = K,
 cv.refit = cv.refit, 
 lambda.upper = lambda.upper, lambda.lower = lambda.lower,
 lambda.accuracy = lambda.accuracy, scaled.lik = scaled.lik,
-adapted.weights = adapted.weights, adapted.weights.adj = adapted.weights.adj,
+adapted.weights = adapted.weights, adapted.weights.adj = adapted.weights.adj, adapted.weights.ridge=adapted.weights.ridge,
 assured.intercept = assured.intercept, 
 level.control = level.control, 
 case.control = case.control,
@@ -141,7 +156,9 @@ pairwise = pairwise,
 grouped.cat.diffs = grouped.cat.diffs, 
 bootstrap = bootstrap,
 start.ml = start.ml,
-L0.log = L0.log
+L0.log = L0.log,
+subjspec.gr = subjspec.gr, 
+high = high
 )
 
 }

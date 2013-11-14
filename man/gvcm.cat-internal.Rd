@@ -11,6 +11,7 @@
 \alias{grouped}
 \alias{grouped.fused}
 \alias{gvcmcatfit}
+\alias{gvcmcatfitridge}
 \alias{p}
 \alias{pspline}
 \alias{path.matrix}

@@ -20,7 +20,7 @@ family, sd = 1, seed = rpois(1, 2348) * rnorm(1))
 \details{
 Remarks on covariates:
 \itemize{
-	\item all parameterizations like default in \code{\link{Distributions}}.
+	\item all parameterizations like default in \code{\link{Distributions}}. 
 	\item possible distributions of covariates (required as characters), their parameters (required as vectors) and constraints (in parentheses):
 	      \itemize{
 	        \item  \code{beta}    : shape1 (>0), shape2 (>0)

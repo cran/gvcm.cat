@@ -31,7 +31,7 @@ intercept=TRUE, # type=="coefs" - shall intercept be added to smooth functions, 
        stop ("type is incorrect. \n")
      
 # colors
-farben <- c('darkblue','blue','lightblue','turquoise','lightgreen',
+farben <- c('blue','lightblue','turquoise','lightgreen', 'darkblue',
 'darkgreen','green','yellow','gold','orange','darkorange','red','darkred','darkviolet',
 'violet','magenta','pink','grey','darkgrey','black')
 
@@ -196,6 +196,7 @@ if (x$method %in% c("AIC", "BIC")){ # forward selection
           # correct margin
           anteil <- anteil.b * max(nchar(names(x$coefficients)[[1]])) +  (indent!=0)*.9*(max(legend.x) - 1)*(1-indent) + (1-indent!=0)*.05
           right.margin <- anteil*range.x/(1-anteil)
+#          print( right.margin)
           const. <- 0
           
         # plot
@@ -230,14 +231,18 @@ if (x$method %in% c("AIC", "BIC")){ # forward selection
               } else {s<-1} 
             }
         if (label==TRUE){
-            legend("bottomleft", legend=c(expression(paste(lambda[CV], " = ")),
-                    (round(lambda, digits=2))) , box.lty=0, horiz=TRUE)
+            legend("bottomleft", legend=
+#                    c(expression(paste(lambda[CV], " = ")), (round(lambda, digits=2))) , 
+                    bquote(lambda[CV] == .(eval(round(lambda, digits=2)))),
+                    box.lty=0, horiz=TRUE)
             }
         
         # max.lambda
         if (label==TRUE){
-            legend("topleft", legend=c(expression(paste(lambda[max], " = ")),
-                   (round(lambda.upper, digits=2))) , box.lty=0, horiz=TRUE)
+            legend("topleft", legend=
+#                   c(expression(paste(lambda[max], " = ")),(round(lambda.upper, digits=2))), 
+                   bquote(lambda[max] == .(eval(round(lambda.upper, digits=2)))),
+                   box.lty=0, horiz=TRUE)
             }
             
         # the good look
@@ -402,8 +407,8 @@ plotsp <- function(y, x, knots, coef.matrix, int.matrix, xlim, ylim, xlab, ylab,
 
 plotvspline <- function(y, x, u, knots, coef.matrix, int.matrix, xlim, ylim, xlab, ylab, color, main, intercept) {
 
-  farbe <- if(color) colorvec[1:levels(u)] else gray( (0:levels(u)) / levels(u))
-  linie <- if(color) rep(1, levels(u)) else 1:levels(u)
+  farbe <- if(color) colorvec[1:length(levels(u))] else gray( (0:length(levels(u))) / length(levels(u)))
+  linie <- if(color) rep(1, length(levels(u))) else 1:length(levels(u))
 
   # ylim
   if (any(is.na(ylim))) {
@@ -433,11 +438,11 @@ plotvspline <- function(y, x, u, knots, coef.matrix, int.matrix, xlim, ylim, xla
        von <- nrow(coef.matrix)*(i - 1) + 1
        bis <- nrow(coef.matrix)* i
        lines(xu[order(xu)], (des[which(u==level),  von:bis] %*% coef.matrix[,i] +
-            ifelse(length(int.matrix)>1, ifelse(intercept, int.matrix[i], 0), ifelse(intercept, int.matrix[1], 0)))[order(xu)], 
+            ifelse(length(int.matrix)>1, ifelse(intercept, int.matrix[i], 0), ifelse(intercept, int.matrix[1], 0)))[order(xu)],
             col=farbe[i], lwd=2, lty=linie[i])
 
   }
-  legend("bottomleft", legend=levels(u), lwd=2, col = farbe, bty="n", lty=linie)
+  legend("topright", legend=levels(u), lwd=2, col = farbe, bty="n", lty=linie)
 }
  
      # definitions
@@ -660,14 +665,14 @@ plotvspline <- function(y, x, u, knots, coef.matrix, int.matrix, xlim, ylim, xla
 
               if (!missing(xlim)) {
                      if (!is.numeric(xlim) || !is.vector(xlim) || length(xlim)!=2)
-                         stop ("Error in arguemnt ylim. \n")
+                         stop ("Error in arguemnt xlim. \n")
                      xlimj <- c(min(xlim), max(xlim))
               } else {
                      xlimj <- c(floor(min(X)), ceiling(max(X)))
               }
 
               if (!missing(ylim)) {
-                     if (!is.numeric(ylim) || !is.vector(ylim) || length(xlim)!=2)
+                     if (!is.numeric(ylim) || !is.vector(ylim) || length(ylim)!=2)
                          stop ("Error in arguemnt ylim. \n")
                      ylimj <- c(min(ylim), max(ylim))
               } else {

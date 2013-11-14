@@ -32,6 +32,7 @@ function(indices, control, beta, x) {
   index.appro <- colnames(indices)
   ncov <- ncol(indices)
   pairwise <- control$pairwise
+  high <- control$high
   
 # blank output
   A <- matrix(0,ncol=0,nrow=0)
@@ -44,7 +45,7 @@ function(indices, control, beta, x) {
   which.a      <- c()
   which.covariate <- c()
   
-# pairwise
+# pairwise & NULL
   if (pairwise==TRUE) {  
       p. <- function(x){1:length(x)}
       m.n <- function(x){x}
@@ -52,7 +53,11 @@ function(indices, control, beta, x) {
       p. <- function(x){order(x)} 
       m.n <- function(x){1}
       }
-
+  if (!is.null(high)) {  
+      p. <- function(x){order(x)}
+      m.n <- function(x){high}
+      }
+      
 # build A, weights, etc.
 for (i in 1:ncov){
 
@@ -139,8 +144,9 @@ for (i in 1:ncov){
                 c(w.pairwise, w.p.rank[w.p.order]) # ordered according to differences in Ai
           } else {c(w.pairwise, rep(1, ncol(Ai)))}
           
-          Ai <- -1 * Ai
-          A  <- bdiag(A, Ai[1:ki, ])
+#          Ai <- -1 * Ai
+#          A  <- bdiag(A, Ai[1:ki, ])
+          A  <- bdiag(A, Ai[-p.(bd)[1], ]) # -1 # 2:(ki+1)  
           
           which.a <- c(which.a, rep(index.appro[i], ncol(Ai)))
           which.covariate <- c(which.covariate, rep(i, ncol(Ai)))      
@@ -166,8 +172,9 @@ for (i in 1:ncov){
               bd <- c(beta[vonbis], 0)
               if (indices["index4",i]<0) Ai <- a(p.(bd), m.n(ki+1))
               if (indices["index4",i]>0) Ai <- a(p.(bd), 1)               
-              Ai <- -1 * Ai
-              Ai <- Ai[1:ki, ]
+#              Ai <- -1 * Ai
+#              Ai <- Ai[1:ki, ]
+              Ai <- Ai[-p.(bd)[1], ]
           }      
           A <- bdiag(A, Ai)
 
@@ -189,7 +196,7 @@ for (i in 1:ncov){
     
         } 
         
-    if (indexs["index5",i]!=0) { # indicator for grouped.fused
+    if (indexs["index5",i]!=0) { # indicator for grouped.fused, fuer stephi
     
           if (indices["index5",i]<0 ) Ai <- a(p.(beta[vonbis]), m.n(ki))
           if (indices["index5",i]>0 ) Ai <- a(p.(beta[vonbis]), 1) 
@@ -231,7 +238,7 @@ for (i in 1:ncov){
               w.pairwise <- c(w.pairwise, rep(1, ki-1))
               which.a <- c(which.a, rep(paste("L2", sep=""), ki-1))
               which.covariate <- c(which.covariate, rep(i, ki-1))
-          } else { # transformed Meier et. al penalty
+          } else { # transformed B-Splines, L1 on slope, grouped on deviations from linear trend
               Ai <- diag(ki) 
               A <- bdiag(A, Ai) 
               phis.v  <- c(phis.v,  rep(0, ki))
@@ -270,8 +277,9 @@ for (i in 1:ncov){
                 c(w.pairwise, w.p.rank[w.p.order]) # ordered according to differences in Ai
           } else {c(w.pairwise, rep(1, ncol(Ai)))}
           
-          Ai <- -1 * Ai
-          A  <- bdiag(A, Ai[1:ki, ])
+#          Ai <- -1 * Ai
+#          A  <- bdiag(A, Ai[1:ki, ])
+          A  <- bdiag(A, Ai[-p.(bd)[1], ])
           
           which.a <- c(which.a, rep(index.appro[i], ncol(Ai)))
           which.covariate <- c(which.covariate, rep(i, ncol(Ai)))      
@@ -302,8 +310,9 @@ for (i in 1:ncov){
                 c(w.pairwise, w.p.rank[w.p.order]) # ordered according to differences in Ai
           } else {c(w.pairwise, rep(1, ncol(Ai)))}
           
-          Ai <- -1 * Ai
-          A  <- bdiag(A, Ai[1:ki, ])
+#          Ai <- -1 * Ai
+#          A  <- bdiag(A, Ai[1:ki, ])
+          A  <- bdiag(A, Ai[-p.(bd)[1], ])
           
           which.a <- c(which.a, rep(index.appro[i], ncol(Ai)))
           which.covariate <- c(which.covariate, rep(i, ncol(Ai)))      
@@ -338,19 +347,23 @@ for (i in 1:ncov){
           A <- bdiag(A, cbind(A.smooth, A.slope.abs, A.slope.diffs, A.grouped))
           
           # factors
-          phis.v  <- c(phis.v,  rep(0, ki-levels.u), rep(-1, levels.u), rep(1, n.diffs), rep(0, ki-levels.u))
-          phis.gf <- c(phis.gf, rep(0, 2*ki))
-          phis.vs <- c(phis.vs, rep(-1, ki-levels.u), rep(0, levels.u + n.diffs), rep(1, ki-levels.u))
-          phis.sp <- c(phis.sp, rep(0, 2*ki))
+          phis.v  <- c(phis.v,  rep(0, ki-levels.u), rep(-1, levels.u), rep(1, ncol(A.slope.diffs)), rep(0, ncol(A.grouped)))
+          phis.gf <- c(phis.gf, rep(0, ki+ncol(A.diffs)))
+          phis.vs <- c(phis.vs, rep(-1, ki-levels.u), rep(0, levels.u), rep(0, ncol(A.slope.diffs)), rep(1, ncol(A.grouped)))
+          phis.sp <- c(phis.sp, rep(0, ki+ncol(A.diffs)))
+#          phis.v  <- c(phis.v,  rep(0, ki-levels.u), rep(-1, levels.u), rep(1, n.diffs), rep(0, ki-levels.u))
+#          phis.gf <- c(phis.gf, rep(0, 2*ki))
+#          phis.vs <- c(phis.vs, rep(-1, ki-levels.u), rep(0, levels.u + n.diffs), rep(1, ki-levels.u))
+#          phis.sp <- c(phis.sp, rep(0, 2*ki))
           w.categ <- if (indices["index9",i]<0 ) {
                      c(w.categ, rep(2*k.nl*(1/levels.u + .5*(levels.u-1)), ki-levels.u), rep(4/(levels.u+1), levels.u),         rep(4/(levels.u+1), n.diffs),         rep(2*k.nl*(1/levels.u + .5*(levels.u-1)), ki-levels.u))
                      } else {
                      c(w.categ, rep(2*k.nl, ki-levels.u),                                rep(levels.u/(levels.u-.5), levels.u), rep(levels.u/(levels.u-.5), n.diffs), rep(2*k.nl, ki-levels.u))                     
                      }
-          w.pairwise <- c(w.pairwise, rep(1, 2*ki))
+          w.pairwise <- c(w.pairwise, rep(1, ki+ncol(A.diffs) )) # rep(1, 2*ki)
           which.a <- c(which.a, rep(paste("grouped", i , 1:levels.u, sep="."), each=k.spline-1), 
                    rep("L1", levels.u + n.diffs), colnames(A.grouped))
-          which.covariate <- c(which.covariate, rep(i, 2*ki))
+          which.covariate <- c(which.covariate, rep(i, ki+ncol(A.diffs))) # rep(i, 2*ki)
 
         }
  
@@ -360,13 +373,22 @@ for (i in 1:ncov){
 
 A <- as.matrix(A)
 
-##
-weighted.covs <- which(colSums(as.matrix(indices[c("index2", "index3", "index5", "index7", "index8"),]))!=0) # v, p, grouped.fused, SCAD, elastic
-weighted <- which(which.covariate %in% weighted.covs)
+# vector fused wie in Fixed effects
+inona <- indices[1,]; names(inona) <- c() 
+if (control$subjspec.gr==TRUE && all.equal(inona, rep(indices[1,1], ncol(indices)))){
+    nr <- length(which.a)/ncol(indices)
+    which.a <- rep(paste("grouped.", 1:nr, sep=""), ncol(indices)) 
+}
 
+# adaptive weights
+weighted.which <- c("index2", "index3", "index5", "index7", "index8")
+if (control$subjspec.gr==TRUE && all.equal(inona, rep(indices[1,1], ncol(indices)))) { # v raus falls mit grouped...
+    weighted.which <- c("index3", "index5", "index7", "index8")
+}
+weighted.covs <- which(colSums(as.matrix(indices[weighted.which,]))!=0) # v, p, grouped.fused, SCAD, elastic
+weighted <- which(which.covariate %in% weighted.covs)
 w.ada <- w.categories <- w.cases <- rep(1, ncol(A)) 
-#if (control$adapted.weights) {w.ada[weighted]  <- as.vector(abs(t(A)%*%beta)^(-1))[weighted]}
-###
+
 if (control$adapted.weights) {
             adaptive.weights <- abs(t(A)%*%beta)
             if (any(adaptive.weights==0)) adaptive.weights[which(adaptive.weights==0)] <- 10^(-control$digits)
@@ -384,7 +406,6 @@ if (control$adapted.weights) {
             adaptive.adj <- rep(1/adaptive.overall, times=lengths)
             w.ada[weighted]  <- (adaptive.adj * adaptive.weights)[weighted]
             }
-###
 
 if (control$level.control)   {w.categories <- w.categ}
 if (control$case.control)    {w.cases[weighted] <- (sqrt(t(A)%*%as.matrix(colSums(x!=0))/nrow(x)))[weighted]}
