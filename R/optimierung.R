@@ -114,11 +114,8 @@ offset = rep(0, nobs),
     # Penalty
         # approximations depending on xi <- t(acoefs)%*%betak
             L1 <- function(xi, control=control) sqrt((xi^2 + control$c) )^(-1)
-#            L0.normal <- function(xi, control=control) 2*control$gama /(exp(control$gama*xi^2)) # L0 mit dichte normalvtlg
-#            L0.root <- function(xi, control=control){m <- control$gama
-#                             (xi^2+control$c)^((1-2*m)/(2*m))/m } # L0 mit abs^(1/m) Approx für jumps
             L0 <- if (control$L0.log==TRUE) {
-                  function(xi, control=control){p <- 1+exp(-control$gama*abs(xi))  # L0 mit logistischer Funktion
+                  function(xi, control=control){p <- 1+exp(-control$gama*abs(xi))  
                          2*control$gama*(sqrt(xi^2 + control$c))^(-1)*p^(-1)*(1 - 1/p)}
                   } else {
                   function(xi, control=control){2*(xi+control$c)^(-2)} # Eilers
@@ -180,11 +177,14 @@ offset = rep(0, nobs),
           nbs <- t(acoefs)%*%beta
           fd <- as.integer(drop(nbs)!=0)
           appro <- fd * lambda * phis * weight * (vec.L(nbs, which.a, all.L, control) + vec.special(beta, acoefs, which.a))
-#          acoefs %*% diag(appro, ncol=length(appro), nrow=length(appro)) %*% t(acoefs)
+#          acoefs %*% diag(appro, ncol=length(appro), nrow=length(appro)) %*% t(acoefs) 
           crossprod(t(acoefs)*sqrt(appro))
 
           }
-            
+
+method<-"lqa"
+#method<-"GenSA"
+if(method=="lqa"){            
     # P-IRLS
       for (i in 1L:control$maxi) {
      
@@ -221,6 +221,7 @@ offset = rep(0, nobs),
             # output: coefficients = start.new, 
             #         später für rank benötigt: inv.pimat.new  
             #         in glm: zusätzlich: residuals, effects, rank, pivot, work, R, effects, qr
+#inv.pimat.new <- solve(t(x.star)%*%x.star + A.lambda) 
                 p.imat.new <- crossprod(x.star) + A.lambda
                 chol.pimat.new <- chol(p.imat.new)
                 inv.pimat.new <- chol2inv(chol.pimat.new)
@@ -307,9 +308,10 @@ offset = rep(0, nobs),
             }
 
       } # ende PIRLS
-        # "output" PIRLS: start, mu, eta, dev, w, x.star, inv.pimat.new
-        # recalculation of start, mu, eta, dev with rounded values of start
+        # "output" PIRLS: start, eta, mu, dev, w, x.star, inv.pimat.new
+}
         
+        # recalculation of start, mu, eta, dev with rounded values of start        
         start <- coef <- round(start, control$accuracy)
         eta <- drop(x %*% start)
         mu <- linkinv(eta <- eta + offset)

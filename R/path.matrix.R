@@ -20,13 +20,13 @@ oml,
 
 {   
 # new.lambdas <- round(c(lambda-lambda/10*(7:9), (lambda+lambda/10*(7:9))[which((lambda+lambda/10*(7:9))<control$lambda.upper)]), 2) 
-nl1 <- c(lambda-lambda/10*(7:9), lambda, (lambda+lambda/10*(7:9))[which((lambda+lambda/10*(7:9))<control$lambda.upper)])
+nl1 <- c((lambda-lambda/10*(7:9))[which((lambda-lambda/10*(7:9))>control$lambda.lower)], lambda, (lambda+lambda/10*(7:9))[which((lambda+lambda/10*(7:9))<control$lambda.upper)])
 nl2 <- if(control$tuning.criterion=="deviance") {
        seq(from=control$lambda.lower, to=control$lambda.upper, length.out=control$steps)[-c(1)]
        } else {
        seq(from=control$lambda.lower, to=control$lambda.upper, length.out=control$steps)[-c(1,control$steps)]
        }
-new.lambdas <- round(c(nl1, nl2),2)
+new.lambdas <- round(c(nl1, nl2),2) # 2
 
 new.path <- matrix(nrow=length(oml),ncol=length(new.lambdas))
  

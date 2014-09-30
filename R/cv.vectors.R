@@ -32,7 +32,7 @@ colnames(coefs) <- as.character(lambda)
 if (control$tuning.criterion %in% c("GCV", "UBRE")) {
 
     if(control$tuning.criterion == "GCV"){
-        crit <- function(n, dev, rank, sc=1) {n * dev/(n-rank)^2} # dev + rank von fit!!
+        crit <- function(n, dev, rank, sc=1) {n * dev/(n-rank)^2} # dev + rank von fit!!      
         }
     if(control$tuning.criterion == "UBRE"){
         crit <- function(n, dev, rank, sc=1) {dev/n + 1*rank*sc/n - sc}
@@ -107,7 +107,7 @@ dev <- function(y,mudach,weights) {sum(d(y=y,mudach=mudach, weights))}
             x.reduced.tr <- as.matrix(x.tr %*% reductionC)     
             x.reduced.te <- as.matrix(x.te %*% reductionC) 
             try(beta.refitted <- glm.fit(x.reduced.tr,training.y, training.weights, family=family,
-                intercept = FALSE))$coefficients
+                intercept = FALSE)$coefficients)
             output <- list(coefficients=beta.refitted, test.x=x.reduced.te)
             return(output)
            }
@@ -149,7 +149,7 @@ dev <- function(y,mudach,weights) {sum(d(y=y,mudach=mudach, weights))}
         losses.sd[1,i] <- sd(loss) * (control$K-1) / control$K  #######
     }
     coefs <- NA
-}
+} # end deviance
 
 # Ergebnis
  opt <- max(lambda[which(losses==min(losses))])[1] # max(lambda[(which(losses==min(losses))-1)%/%dim(losses)[1]+1])[1]

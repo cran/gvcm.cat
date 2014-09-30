@@ -67,33 +67,34 @@ plot=FALSE,
         weights <- (Y[,1]+Y[,2])*weights 
         Y <- Y[,1]/(Y[,1]+Y[,2])
         } 
+
     if (family$family=="binomial" && (sum(Y>1) || sum(Y<0))) 
         stop("No binomial response. \n") 
     if (family$family=="Gamma" && (sum(Y<=0))) 
         stop("No Gamma-distributed response. \n") 
-
-# standardize 
-    if(control$center){
-       if (sum(X[,1])==n || sum(X[,1])==sum(weights)) {
-           centering <- c(0, colSums(diag(weights)%*%X[,-1])/sum(weights)) # colMeans(X[,-1])
-#           X[,-1] <- scale(X[,-1], center = centering[-1], scale = FALSE)
-           } else {
-           centering <- colSums(diag(weights)%*%X)/sum(weights) # colMeans(X[,-1])
-           }
-           X <- scale(X, center = centering, scale = FALSE)           
-    }
-    if(control$standardize){
-       if (sum(X[,1])==n || sum(X[,1])==sum(weights)) {
-             scaling <- c(1, sqrt(colSums(t((t(X[,-1]) - colSums(diag(weights)%*%X[,-1])/sum(weights))^2*weights))/(sum(weights)-1)))
-           } else {
-             scaling <- sqrt(colSums(t((t(X) - colSums(diag(weights)%*%X)/sum(weights))^2*weights))/(sum(weights)-1))
-           }
-       X <- scale(X, center = FALSE, scale = scaling)
-    }   
-
+        
 # definitions
     indices <- index(dsgn, data, formula)
     indices["index2b",1] <- if (control$assured.intercept) 0 else 1 
+
+# standardize - splines ausgenommen!!
+    not <- c()
+    if (sum(X[,1])==n || sum(X[,1])==sum(weights)) {not <- 1}
+    if (any(rowSums(indices)[c(7,10)]!=0)){   
+        sm <- which( c(indices[7,]+ indices[10,]) != 0)
+        for (i in 1:length(sm)) { not <- c(not, (sum(indices[1, 1:sm[i]])-indices[1,sm[i]]+1):(sum(indices[1, 1:sm[i]])) )}
+    }
+    not <- if (length(not)>0) {-not} else {1:ncol(X)}
+    
+    if(control$center){
+       centering <- colSums(diag(weights)%*%X)/sum(weights) # colMeans(X[,-1])
+       X[, not] <- scale(X[, not], center = centering[not], scale = FALSE)           
+    }
+    if(control$standardize){
+       scaling <- sqrt(colSums(t((t(X) - colSums(diag(weights)%*%X)/sum(weights))^2*weights))/(sum(weights)-1))
+       X[, not] <- scale(X[, not], center = FALSE, scale = scaling[not])
+    } 
+
 
 # default method        
     if (method %in% c("AIC", "BIC")) {

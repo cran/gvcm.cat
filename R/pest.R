@@ -21,7 +21,7 @@ plot=FALSE,
   n <- NROW(y)
   nvars <- ncol(x)
   EMPTY <- nvars == 0
-
+  
 # checks
   if (is.character(family))
       family <- get(family, mode = "function", envir = parent.frame())
@@ -98,8 +98,10 @@ plot=FALSE,
       est.adapt <- oml
       } else {
       est.adapt <- gvcmcatfitridge(x, y, weights = weights, family = family, control=control, offset = offset)$coefficients
+      control$oml <- est.adapt
       }
   acoefs <- a.coefs(indices, control, beta=est.adapt, x)
+
   pp <- colSums(as.matrix(indices[-c(1,3),])!=0) # covariates with penalized coefficients
   n.sp <- sum(indices[1,which(pp>=1)]) - sum(abs(indices["index2",])*(1-indices["index2b",]))  
      if (any(indices["index6",]!=0)) {n.sp <- n.sp - length(which(colnames(indices)[which(indices["index6",]!=0)]=="L2"))}

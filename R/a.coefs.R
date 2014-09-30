@@ -174,7 +174,7 @@ for (i in 1:ncov){
               if (indices["index4",i]>0) Ai <- a(p.(bd), 1)               
 #              Ai <- -1 * Ai
 #              Ai <- Ai[1:ki, ]
-              Ai <- Ai[-p.(bd)[1], ]
+              Ai <- Ai[-p.(bd)[1], ]      
           }      
           A <- bdiag(A, Ai)
 
@@ -201,7 +201,7 @@ for (i in 1:ncov){
           if (indices["index5",i]<0 ) Ai <- a(p.(beta[vonbis]), m.n(ki))
           if (indices["index5",i]>0 ) Ai <- a(p.(beta[vonbis]), 1) 
 
-          A <- bdiag(A, cbind(Ai, diag(ki)))
+          A <- bdiag(A, cbind(Ai, diag(ki)))       
 
           phis.v  <- c(phis.v,  rep(0, ncol(Ai)+ki) )
           phis.gf <- c(phis.gf, rep(1,ncol(Ai)), rep(-1, ki))
@@ -405,7 +405,7 @@ if (control$adapted.weights) {
                 }    
             adaptive.adj <- rep(1/adaptive.overall, times=lengths)
             w.ada[weighted]  <- (adaptive.adj * adaptive.weights)[weighted]
-            }
+}
 
 if (control$level.control)   {w.categories <- w.categ}
 if (control$case.control)    {w.cases[weighted] <- (sqrt(t(A)%*%as.matrix(colSums(x!=0))/nrow(x)))[weighted]}
