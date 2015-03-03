@@ -22,8 +22,6 @@ Obtains predictions from a fitted \code{gvcm.cat} object.
 }
 \seealso{Function \code{\link{gvcm.cat}}}
 \examples{
-## continues example of function gvcm.cat 
-\donttest{newdata <- simulation(200, covariates, NULL, true.f, true.coefs , binomial(), seed=789)
-prediction <- predict.gvcm.cat(m1, newdata) }
+## see example for function gvcm.cat 
 }
 \keyword{gvcm.cat}

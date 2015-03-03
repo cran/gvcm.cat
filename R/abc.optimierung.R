@@ -32,16 +32,16 @@ offset = rep(0, n),
         offset <- rep.int(offset, n)
     
 # check start 
-  initials <- if (!is.null(start)) { # start value für ceofs da
-                  if (length(start) != nvars)   # falsche Länge?
+  initials <- if (!is.null(start)) { # start value fuer ceofs da
+                  if (length(start) != nvars)   # falsche Laenge?
                       {stop(gettextf("length of 'start' should equal %d and correspond to initial coefs for %s",
                         nvars, paste(deparse(xnames), collapse = ", ")),
                         domain = NA)}
-                  else { # keine falsche Länge!
+                  else { # keine falsche Laenge!
                       isnogood <- is.na(start)
                       if (any(isnogood)) { start[isnogood] <- 0 }
                       start }
-            } else # kein start für ceofs da => default value 0!
+            } else # kein start fuer ceofs da => default value 0!
             { start <- rep(0, nvars) 
               start
             } 

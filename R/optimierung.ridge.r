@@ -53,11 +53,11 @@ offset = rep(0, nobs),
         etastart <- family$linkfun(mustart)
         start <- coefold # nur fur 1. iteration penalty!
     }     else {  # start value
-        start <- if (length(start) != nvars)   # falsche Länge?
+        start <- if (length(start) != nvars)   # 
                     {stop(gettextf("length of 'start' should equal %d and correspond to initial coefs for %s",
                       nvars, paste(deparse(xnames), collapse = ", ")),
                       domain = NA)}
-                 else { # keine falsche Länge!
+                 else { # 
                     isnogood <- is.na(start)
                     if (any(isnogood)) { start[isnogood] <- 0 }
                     start }
@@ -116,9 +116,9 @@ offset = rep(0, nobs),
     # P-IRLS
       for (i in 1L:control$maxi) {
 
-            good <- weights > 0  # index für beos, die berücksichtigt werden
+            good <- weights > 0  # index fuer beos, die beruecksichtigt werden
 
-            # initials für fitting alg.
+            # initials fuer fitting alg.
             varmu <- variance(mu)[good] # v.i <- variance(mu.i)/weights
             if (any(is.na(varmu)))
                 stop("NAs in V(mu)")
@@ -161,7 +161,7 @@ offset = rep(0, nobs),
                 break
             }
 
-            # berechne werte mu, eta, dev für alg in neuer iteration
+            # berechne werte mu, eta, dev fuer alg in neuer iteration
             eta <- drop(x %*% start)
             mu <- linkinv(eta <- eta + offset)
             dev <- sum(dev.resids(y, mu, weights))
@@ -178,7 +178,6 @@ offset = rep(0, nobs),
                 warning("step size truncated due to divergence",
                   call. = FALSE)
                 ii <- 1
-                    # gehe solange zurück bis dev wieder endlich, falls nicht möglich: stop
                     while (!is.finite(dev)) {
                       if (ii > control$maxi)
                         stop("inner loop 1; cannot correct step size",
@@ -256,7 +255,7 @@ offset = rep(0, nobs),
                 call. = FALSE)
       }
 
-      # zusätzliche werte zu ergebnis
+     
       names(coef) <- xnames # rownames
 
 } # Ende Fall mit Kovariablen

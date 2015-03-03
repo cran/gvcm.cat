@@ -7,8 +7,8 @@ family,
 control,
 acoefs, # matrix!!
 lambda, # skalar!
-phis, # vector länge L
-weight, # vector länge L, weight.const
+phis, # vector laenge L
+weight, # vector laenge L, weight.const
 # elastic in control!!
 which.a, # length L
 start = NULL,
@@ -61,11 +61,11 @@ offset = rep(0, nobs),
         etastart <- family$linkfun(mustart)
         start <- coefold # nur fur 1. iteration penalty!
     }     else {  # start value 
-        start <- if (length(start) != nvars)   # falsche Länge?
+        start <- if (length(start) != nvars)   # falsche Laenge?
                     {stop(gettextf("length of 'start' should equal %d and correspond to initial coefs for %s",
                       nvars, paste(deparse(xnames), collapse = ", ")),
                       domain = NA)}
-                 else { # keine falsche Länge!
+                 else { # keine falsche Laenge!
                     isnogood <- is.na(start)
                     if (any(isnogood)) { start[isnogood] <- 0 }
                     start }
@@ -188,9 +188,9 @@ if(method=="lqa"){
     # P-IRLS
       for (i in 1L:control$maxi) {
      
-            good <- weights > 0  # index für beos, die berücksichtigt werden
+            good <- weights > 0  # index fuer beos, die beruecksichtigt werden
             
-            # initials für fitting alg.
+            # initials fuer fitting alg.
             varmu <- variance(mu)[good] # v.i <- variance(mu.i)/weights 
             if (any(is.na(varmu)))
                 stop("NAs in V(mu)")
@@ -219,16 +219,15 @@ if(method=="lqa"){
             # fitting algorithm (mit beta.i = start)
             # input: x.star, y.schlange, A.lambda, n, nvars, tolerance= control$epsilon, control$g
             # output: coefficients = start.new, 
-            #         später für rank benötigt: inv.pimat.new  
-            #         in glm: zusätzlich: residuals, effects, rank, pivot, work, R, effects, qr
-#inv.pimat.new <- solve(t(x.star)%*%x.star + A.lambda) 
+            #         spaeter fuer rank benaetigt: inv.pimat.new  
+            #         in glm: zusaetzlich: residuals, effects, rank, pivot, work, R, effects, qr
+            #inv.pimat.new <- solve(t(x.star)%*%x.star + A.lambda) 
                 p.imat.new <- crossprod(x.star) + A.lambda
                 chol.pimat.new <- chol(p.imat.new)
                 inv.pimat.new <- chol2inv(chol.pimat.new)
                 start.new <- control$g * drop(inv.pimat.new %*% t(x.star) %*%
                     y.schlange) + (1 - control$g) * start # start als matrix?!                    
             # ende fitting alg.
-            
             # definitions output
             start <- start.new   # in glm: start[fit$pivot] <- fit$coefficients
             
@@ -239,7 +238,7 @@ if(method=="lqa"){
                 break
             }
 
-            # berechne werte mu, eta, dev für alg in neuer iteration           
+            # berechne werte mu, eta, dev fuer alg in neuer iteration           
             eta <- drop(x %*% start)
             mu <- linkinv(eta <- eta + offset)
             dev <- sum(dev.resids(y, mu, weights))
@@ -256,7 +255,7 @@ if(method=="lqa"){
                 warning("step size truncated due to divergence",
                   call. = FALSE)
                 ii <- 1
-                    # gehe solange zurück bis dev wieder endlich, falls nicht möglich: stop
+                    # gehe solange zurueck bis dev wieder endlich, falls nicht moeglich: stop
                     while (!is.finite(dev)) {
                       if (ii > control$maxi) 
                         stop("inner loop 1; cannot correct step size",
@@ -335,7 +334,7 @@ if(method=="lqa"){
                 call. = FALSE)
       }
 
-      # zusätzliche werte zu ergebnis
+      # zusaetzliche werte zu ergebnis
       residuals <- (y - mu)/mu.eta(eta)
       names(coef) <- xnames # rownames
       

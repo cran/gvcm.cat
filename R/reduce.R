@@ -16,7 +16,7 @@ while (i <= ncol(C) ) {
   if ((colSums(indexs))[eval(parse(text=rownames(C)[which(C[,i]==1)]))]!=0 )  # exclude only penalized coefficients        
   { 
       j <- indexCo[which(C[,i]==1)] # bei welcher variable ist i grade?!
-      married <- c( (sum(index1[1:j]) - index1[j] + 1) : sum(index1[1:j]) ) # welche koefs gehören dazu?
+      married <- c( (sum(index1[1:j]) - index1[j] + 1) : sum(index1[1:j]) ) # welche koefs gehoeren dazu?
 
       # exclude zero coefficients
       if (sum(beta*C[,i])==0 && ifelse(index2b[j]==0 && index2[j]!=0, sum(as.matrix(C[,-i])[married,])!=0, TRUE))  # keep assured.intercept, even if zero

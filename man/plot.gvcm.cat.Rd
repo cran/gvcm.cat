@@ -44,11 +44,6 @@ So far, there is no plot for methods \code{"AIC"} and \code{"BIC"}.}
 
 \seealso{Function \code{\link{gvcm.cat}}}
 \examples{
-## continues example of function gvcm.cat 
-\donttest{
-plot(m1)
-plot(m1, type="score")
-plot(m1, type="coefs")
-}
+## see example for function gvcm.cat 
 }
 \keyword{gvcm.cat}

@@ -155,7 +155,7 @@ for (i in 1:ncov){
         
     if (indexs["index4",i]!=0) { # indicator for grouped 
 
-          #Ai <- diag(ki) # hier auch differenzen matrix möglich!!
+          #Ai <- diag(ki) # hier auch differenzen matrix moeglich!!
           #A <- bdiag(A, Ai)
           #phis.v  <- c(phis.v,  rep(0, ki))
           #phis.gf <- c(phis.gf, rep(0, ki))
@@ -408,7 +408,7 @@ if (control$adapted.weights) {
 }
 
 if (control$level.control)   {w.categories <- w.categ}
-if (control$case.control)    {w.cases[weighted] <- (sqrt(t(A)%*%as.matrix(colSums(x!=0))/nrow(x)))[weighted]}
+if (control$case.control)    {w.cases[weighted] <- (sqrt(abs(t(A))%*%as.matrix(colSums(x!=0))/nrow(x)))[weighted]}
 
 which.continuous <- as.numeric(colSums(x!=0)==nrow(x))
 which.continuous[1] <- 0

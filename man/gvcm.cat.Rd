@@ -1,6 +1,5 @@
 \name{gvcm.cat}
 \alias{gvcm.cat}
-\alias{gvcm.cat.default}
 \alias{pest}
 \alias{abc}
 \alias{print.gvcm.cat}
@@ -15,11 +14,6 @@ For non-differentiable penalties, a local quadratic approximation is employed, s
 }
 \usage{
 gvcm.cat(formula, data, family = gaussian, method = c("lqa", "AIC", "BIC"), 
-tuning = list(lambda=TRUE, specific=FALSE, phi=0.5, grouped.fused=0.5, 
-elastic=0.5, vs=0.5, spl=0.5), weights, offset, start, control, 
-model = FALSE, x = FALSE, y = FALSE, plot=FALSE, ...)
-
-\method{gvcm.cat}{default}(formula, data, family = gaussian, method = c("lqa", "AIC", "BIC"), 
 tuning = list(lambda=TRUE, specific=FALSE, phi=0.5, grouped.fused=0.5, 
 elastic=0.5, vs=0.5, spl=0.5), weights, offset, start, control, 
 model = FALSE, x = FALSE, y = FALSE, plot=FALSE, ...)
@@ -53,7 +47,7 @@ weights, offset, start, control = cat_control(), plot=FALSE, ...)
   \item{offset}{an optional offset}
   \item{start}{initial values for the PIRLS algorithm for method \code{lqa}}
   \item{control}{a list of parameters for controlling the fitting process; if emtpy, set to \code{cat_control()}; see \code{\link{cat_control}}}
-  \item{model}{for functions \code{gvcm.cat} and \code{gvcm.cat.default}: a logical value indicating whether the employed model frame shall be returned or not}
+  \item{model}{for functions \code{gvcm.cat}: a logical value indicating whether the employed model frame shall be returned or not}
   \item{x, y}{for function \code{gvcm.cat}: logical values indicating whether the response vector and the model matrix used in the fitting process shall be returned or not; 
        for functions \code{pest} and \code{abc}: \code{y} must be a response vector, \code{x} a proper coded design matrix}
   \item{plot}{logical; if \code{TRUE}, estimates needed to plot coefficient paths are computed}
@@ -149,7 +143,7 @@ Methodol. 68 (1), 49-67.\cr
 Zou, H. and T. Hastie (2005). Regularization and variable selection via the Elastic Net. R. Stat. Soc. Ser. B Stat. 
 Methodol. 67 (2), 301-320.\cr
 }
-\note{Pleas note that the functions \code{gvcm.cat.default}, \code{pest} and the fitting procedure 
+\note{Pleas note that the functions \code{gvcm.cat}, \code{pest} and the fitting procedure 
 for penalized estimation \code{gvcmcatfit} are organized like the functions \code{\link{glm}}/\code{\link{glm.fit}} whenever possible. 
 This was done to avoid mistakes and to provide a well-known structure.
 }
@@ -158,8 +152,25 @@ This was done to avoid mistakes and to provide a well-known structure.
 Functions \code{\link{index}}, \code{\link{cat_control}}, \code{\link{plot.gvcm.cat}}, \code{\link{predict.gvcm.cat}}, \code{\link{simulation}}
 }
 \examples{
-## continues example of function simulation 
-\donttest{f <- y ~ v(1,u) + v(x1,u) + v(x2,u)
+## example for function simulation()
+covariates <- list(x1=list("unif", c(0,2)),
+                  x2=list("unif", c(0,2)),
+                  x3=list("unif", c(0,2)),
+                  u=list("multinom",c(0.3,0.4,0.3), "nominal")
+                  )
+true.f <- y ~ 1 + v(x1,u) + x2
+true.coefs <- c(0.2,  0.3,.7,.7, -.5)
+data <- simulation(400, covariates, NULL, true.f, true.coefs , binomial(), seed=456)
+## example for function gvcm.cat()
+f <- y ~ v(1,u) + v(x1,u) + v(x2,u)
 m1 <- gvcm.cat(f, data, binomial(), plot=TRUE, control=cat_control(lambda.upper=19))
-summary(m1)}
+summary(m1)
+## example for function predict.gvcm.cat
+newdata <- simulation(200, covariates, NULL, true.f, true.coefs , binomial(), seed=789)
+prediction <- predict.gvcm.cat(m1, newdata) 
+## example for function plot.gvcm.cat 
+plot(m1)
+plot(m1, type="score")
+plot(m1, type="coefs")
 }
+

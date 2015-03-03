@@ -42,7 +42,7 @@ function(indices, splitting=FALSE) {
 #  require(Matrix)
   A <- matrix(0,ncol=0,nrow=0)
   
-  if (splitting==TRUE){  # index1, index2 dann nur 1 Eintrag, wie Blöcke von Länge index1 zerlegt werden können
+  if (splitting==TRUE){  # index1, index2 dann nur 1 Eintrag, wie Bloecke von Laenge index1 zerlegt werden koennen
   for (i in 1:length(index1)) {
   if ( index2[i]<0 ) {  B <- a.coefs.nominal(p=index1[i])[,-1] 
                         B <- B[,which(B[1,]==1)]
