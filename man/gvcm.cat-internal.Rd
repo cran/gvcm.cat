@@ -1,4 +1,5 @@
 \name{gvcm.cat-internal}
+\alias{a}
 \alias{abcfit}
 \alias{a.coefs}
 \alias{abc.a.coefs}

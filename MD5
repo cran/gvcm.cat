@@ -1,5 +1,6 @@
-b428df24707fedd052a958ffe347d231 *DESCRIPTION
-40c0db5c660c0830d5eb8820ca13c5f2 *NAMESPACE
+441abac8d9291aa252fab57caf47cb7b *DESCRIPTION
+9c875ecb738709b5ff4b51fd095288a3 *NAMESPACE
+40dd03d14fec54ae5ecd463dfb260503 *R/a.R
 80234ab0f45c1e6a94987715c367e6aa *R/a.coefs.R
 58b46aa1ec448bf7f44e6e9820714500 *R/abc.R
 681983ae060ea4c8292a4578f756b1d1 *R/abc.a.coefs.R
@@ -14,8 +15,9 @@ fecc4fd1541cb5ac0b189bd9fe5b7e3c *R/contr.effect.R
 2a9b7cf6eaa4fdc043a7f7f1bc67a77b *R/grouped.R
 0eb320137ded22029a6f83ace7038e8a *R/grouped.fused.R
 6abd67f8f03d0ca8961233f2271a31c0 *R/gvcm.cat.R
+5ef41af451ea1824f7ccc55936f183f1 *R/gvcm.cat.flex.R
 1540a341f07fd377274f661632d001ee *R/index.R
-fd97c8c1db257fdedbfd1a4e1a896856 *R/optimierung.R
+a710106281352aa47bf737f3dab7a441 *R/optimierung.R
 31f87a0d98c31d300a9a51102d471e49 *R/optimierung.ridge.R
 9a6719f7aa98bfcc6f095e9fa8391e5e *R/p.R
 e0c74966744940dc8c12c49a6f4b528f *R/path.matrix.R
@@ -29,10 +31,11 @@ b7370373789fbb5c7b16d06b3bca7be6 *R/simulation.R
 57a2da05d8e0e18c619735948899df82 *R/summary.gvcm.cat.R
 8a6cc695bd7605abb0edd0f507447e7a *R/v.R
 afc26d1f044c390dafb742e454dd23c3 *R/weight.function.R
-4a43286186266630e656ea11a6aab9fb *inst/CITATION
+95bfc7f964cd587c565cab6d30947d71 *inst/CITATION
 52d437190e98b208eac86e572e56fb1b *man/cat_control.Rd
-1f20f35dc330374232e64d9e39a08e0c *man/gvcm.cat-internal.Rd
+17c7263051f3d30bb3424e73efe847c1 *man/gvcm.cat-internal.Rd
 f2b21756f11313774824ac6a3232cbec *man/gvcm.cat.Rd
+d2a36b54834641ffb2c6a29e147ad036 *man/gvcm.cat.flex.Rd
 a2ac929f68f17747ef3e0df47b20d080 *man/index.Rd
 c29038c9c8e303aae492e9cf0a4b7adb *man/plot.gvcm.cat.Rd
 14ef90c18f6dbce6f7466a2a65bae406 *man/predict.gvcm.cat.Rd

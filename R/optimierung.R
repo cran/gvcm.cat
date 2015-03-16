@@ -230,7 +230,7 @@ if(method=="lqa"){
             # ende fitting alg.
             # definitions output
             start <- start.new   # in glm: start[fit$pivot] <- fit$coefficients
-            
+
             # check ergebnis fitting alg: ceofs (+ rank in glm)
             if (any(!is.finite(start))) {
                 conv <- FALSE
